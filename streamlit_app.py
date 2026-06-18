@@ -64,6 +64,24 @@ elif page == "Restaurant Inspections Analysis 🍽️":
 
     st.title("Restaurant Inspections Analysis 🍽️")
 
+    st.header("Key Metrics")
+
+    st.write("---")
+
+    st.header("Data Breakdown")
+    tab1, tab2, tab3 = st.tabs(
+        ["Borough Comparison", "Cuisine Analysis", "Violation Analysis"])
+
+    with tab1:
+        st.subheader("Borough Comparison ")
+
+    with tab2:
+        st.subheader("Cuisine Analysis")
+
+    with tab3:
+        st.subheader("Violation Analysis")
+
+
 # --- Rodent Inspections Analysis Page ---
 elif page == "Rodent Inspections Analysis 🐀":
 
