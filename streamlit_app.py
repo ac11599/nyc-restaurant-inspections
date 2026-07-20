@@ -134,6 +134,35 @@ elif page == "Income Data Analysis 💰":
 
     st.title("Income Data Analysis 💰")
 
+    st.header("Summary Findings")
+    st.write("[insert summary findings]")
+
+    st.write("---")
+
+    st.header("Key Metrics")
+
+    tab1, tab2, tab3 = st.tabs(
+        ["Median Neighborhood Income", "Median Income by Household Type", "Top 5 vs Bottom 5 Neighborhoods by Income"])
+
+    with tab1:
+        st.subheader("Median Neighborhood Income")
+        st.image("figures/income/median_household_income_by_neighborhood_queens2024.png")
+        st.write("[insert notes on figure]")
+
+        st.image("figures/income/median_household_income_over_time_by_neighborhood_queens.png")
+        st.write("[insert notes on figure]")
+
+    with tab2:
+        st.subheader("Median Income by Household Type")
+        st.image("figures/income/median_income_by_household_type_queens2024.png")
+        st.write("[insert notes on figure]")
+
+    with tab3:
+        st.subheader("Top 5 vs Bottom 5 Neighborhoods by Income")
+        st.image("figures/income/top5_vs_bottom5_neighborhoods_by_median_income_queens2024.png")
+        st.write("[insert notes on figure]")
+
+
 # --- 311 Complaints Analysis Page ---
 elif page == "311 Complaints Analysis Page 📞":
     
