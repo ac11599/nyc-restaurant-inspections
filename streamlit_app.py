@@ -1,6 +1,8 @@
 # --- Package Imports ---
 import streamlit as st
 import pandas as pd
+import sklearn
+import joblib
 
 # --- Setup ---
 st.set_page_config(
@@ -363,3 +365,60 @@ elif page == "What Drives Restaurant Risk? 📊":
 elif page == "Predictive Model Dashboard 🔮":
 
     st.title("Predictive Model Dashboard 🔮")
+
+    # Load everything once
+    model = joblib.load('model/restaurant_score_model.pkl')
+    model_columns = joblib.load('model/model_columns.pkl')
+    cuisine_list = joblib.load('model/cuisine_list.pkl')
+    neighborhood_list = joblib.load('model/neighborhood_list.pkl')
+    neighborhood_stats = pd.read_csv('merged_neighborhood_summary.csv')
+
+    st.header("Predictive Model: Restaurant Inspection Risk")
+    st.write("Select a cuisine type, neighborhood, and month to predict an inspection score and estimated grade.")
+
+    # User inputs
+    col1, col2, col3 = st.columns(3)
+    cuisine = col1.selectbox("Cuisine Type", cuisine_list)
+    neighborhood = col2.selectbox("Neighborhood", neighborhood_list)
+    month = col3.selectbox("Month", list(range(1, 13)), 
+                            format_func=lambda x: pd.Timestamp(2024, x, 1).strftime('%B'))
+
+    if st.button("Predict Inspection Score"):
+        # Look up neighborhood stats
+        stats_row = neighborhood_stats[neighborhood_stats['neighborhood'] == neighborhood].iloc[0]
+        
+        # Build input row, starting all zeros
+        input_row = pd.DataFrame(0, index=[0], columns=model_columns)
+        
+        # Set numeric features
+        input_row['month_num'] = month
+        input_row['median_income'] = stats_row['median_income']
+        input_row['rodent_fail_rate'] = stats_row['rodent_fail_rate']
+        input_row['complaint_count'] = stats_row['complaint_count']
+        
+        # Set the correct one-hot columns to 1
+        cuisine_col = f'cuisine_description_{cuisine}'
+        neighborhood_col = f'neighborhood_{neighborhood}'
+        
+        if cuisine_col in input_row.columns:
+            input_row[cuisine_col] = 1
+        if neighborhood_col in input_row.columns:
+            input_row[neighborhood_col] = 1
+        
+        # Predict
+        predicted_score = model.predict(input_row)[0]
+        
+        # Convert to grade using NYC cutoffs
+        if predicted_score <= 13:
+            predicted_grade = "A"
+        elif predicted_score <= 27:
+            predicted_grade = "B"
+        else:
+            predicted_grade = "C"
+        
+        # Display results
+        col1, col2 = st.columns(2)
+        col1.metric("Predicted Score", f"{predicted_score:.1f}")
+        col2.metric("Predicted Grade", predicted_grade)
+        
+        st.caption("Note: predictions are estimates based on historical patterns and may not reflect any individual restaurant's actual outcome. Model RMSE: ~15.9 points, R²: 0.29.")
