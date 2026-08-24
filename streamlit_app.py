@@ -13,9 +13,9 @@ st.sidebar.header("NYC Restaurant Inspections Dashboad 🌐")
 page = st.sidebar.selectbox("Select Page", [
                             "Introduction 🗽",
                             "Explore Datasets 🔍",
-                            # "What Drives Restaurant Risk? 📊",
                             "What Drives Restaurant Risk? 📊",
-                            "Predictive Model Dashboard 🔮"])
+                            "Predictive Model Dashboard 🔮",
+                            "Policy & Conclusions 💡"])
 
 # --- Introduction Page ---
 if page == "Introduction 🗽":
@@ -418,115 +418,116 @@ elif page == "Predictive Model Dashboard 🔮":
         
         st.caption("Note: predictions are estimates based on historical patterns and may not reflect any individual restaurant's actual outcome. Model RMSE: ~15.9 points, R²: 0.29.")
 
-        st.subheader("Executive Summary")
+    st.subheader("What This Model Tells Us")
+    
+    st.write("This model predicts a restaurant's inspection score using cuisine type, neighborhood, inspection " \
+    "month, and three neighborhood-level conditions pulled from the integrated analysis: median income, rodent " \
+    "inspection failure rate, and 311 complaint volume. It explains about 29% of the variation in scores " \
+    "(R² = 0.29, RMSE ≈ 16 points). That's a modest but meaningful result — inspection outcomes have a lot of " \
+    "inherent randomness (what an inspector happens to find on a given day), so capturing even a partial pattern " \
+    "from these features is a real signal, not noise.")
 
-        st.write("Restaurant inspection risk in Queens is shaped less by neighborhood income and more by what a " \
-        "restaurant serves and when it's inspected. Cuisines involving substantial raw meat, poultry, or seafood " \
-        "handling show meaningfully higher risk, and inspection scores are consistently worse in summer months. " \
-        "We recommend adjusting inspection frequency based on food handling risk category and season — not " \
-        "neighborhood or cuisine identity — to make better use of existing inspection resources.")
+    st.write("The biggest surprise is what actually drives predictions. Cuisine type, taken as a whole, is the " \
+    "single strongest predictor (38% of total importance) — more than double any other category. Seasonality " \
+    "(inspection month) is a close second at 32%. Neighborhood identity and neighborhood-level conditions " \
+    "(income, rodent activity, complaints combined) matter, but play a clearly secondary role, together " \
+    "accounting for less than a quarter of the model's decisions.")
 
-        st.subheader("What This Model Tells Us")
+    st.write("This flips the assumption our integrated analysis correlations might have suggested. Income and " \
+    "rodent activity do correlate with restaurant grades at the neighborhood level, but once cuisine type and " \
+    "inspection timing are accounted for, they explain relatively little on their own. In other words: " \
+    "**what kind of restaurant it is, and when it gets inspected, matter more than what neighborhood it's in.**")
 
-        st.write("This model predicts a restaurant's inspection score using cuisine type, neighborhood, inspection " \
-        "month, and three neighborhood-level conditions pulled from the integrated analysis: median income, rodent " \
-        "inspection failure rate, and 311 complaint volume. It explains about 29% of the variation in scores " \
-        "(R² = 0.29, RMSE ≈ 16 points). That's a modest but meaningful result — inspection outcomes have a lot of " \
-        "inherent randomness (what an inspector happens to find on a given day), so capturing even a partial pattern " \
-        "from these features is a real signal, not noise.")
+    st.subheader("Correlation, Not Causation")
 
-        st.write("The biggest surprise is what actually drives predictions. Cuisine type, taken as a whole, is the " \
-        "single strongest predictor (38% of total importance) — more than double any other category. Seasonality " \
-        "(inspection month) is a close second at 32%. Neighborhood identity and neighborhood-level conditions " \
-        "(income, rodent activity, complaints combined) matter, but play a clearly secondary role, together " \
-        "accounting for less than a quarter of the model's decisions.")
+    st.write("It's important to be clear about what this model can and can't claim. None of these relationships " \
+    "are causal. Lower income doesn't cause worse food safety outcomes, and rodent activity doesn't directly " \
+    "cause lower restaurant grades. It's far more likely that income, rodent activity, and 311 complaint volume " \
+    "are all symptoms of the same underlying conditions — older housing stock, under-resourced infrastructure, " \
+    "or differences in inspection frequency and enforcement — rather than one factor driving another.")
 
-        st.write("This flips the assumption our integrated analysis correlations might have suggested. Income and " \
-        "rodent activity do correlate with restaurant grades at the neighborhood level, but once cuisine type and " \
-        "inspection timing are accounted for, they explain relatively little on their own. In other words: " \
-        "**what kind of restaurant it is, and when it gets inspected, matter more than what neighborhood it's in.**")
+    st.write("Bangladeshi restaurants offer a good example of why this distinction matters. They show the second-" \
+    "highest cuisine-level importance in the model, with a notably high average score (~43, based on over 1,000 " \
+    "inspections). Without more context, it would be easy to draw the wrong conclusion here. The real explanation " \
+    "could involve restaurant size, business informality, neighborhood concentration, or how inspectors evaluate " \
+    "different cuisine types — this dataset alone can't isolate the cause, and it would be a mistake to imply one.")
+    
+elif page == "Policy & Conclusions 💡":
+    st.subheader("Executive Summary")
 
-        st.subheader("Correlation, Not Causation")
+    st.write("Restaurant inspection risk in Queens is shaped less by neighborhood income and more by what a " \
+    "restaurant serves and when it's inspected. Cuisines involving substantial raw meat, poultry, or seafood " \
+    "handling show meaningfully higher risk, and inspection scores are consistently worse in summer months. " \
+    "We recommend adjusting inspection frequency based on food handling risk category and season — not " \
+    "neighborhood or cuisine identity — to make better use of existing inspection resources.")
 
-        st.write("It's important to be clear about what this model can and can't claim. None of these relationships " \
-        "are causal. Lower income doesn't cause worse food safety outcomes, and rodent activity doesn't directly " \
-        "cause lower restaurant grades. It's far more likely that income, rodent activity, and 311 complaint volume " \
-        "are all symptoms of the same underlying conditions — older housing stock, under-resourced infrastructure, " \
-        "or differences in inspection frequency and enforcement — rather than one factor driving another.")
+    st.subheader("So What?")
 
-        st.write("Bangladeshi restaurants offer a good example of why this distinction matters. They show the second-" \
-        "highest cuisine-level importance in the model, with a notably high average score (~43, based on over 1,000 " \
-        "inspections). Without more context, it would be easy to draw the wrong conclusion here. The real explanation " \
-        "could involve restaurant size, business informality, neighborhood concentration, or how inspectors evaluate " \
-        "different cuisine types — this dataset alone can't isolate the cause, and it would be a mistake to imply one.")
-
-        st.subheader("So What?")
-
-        st.write("The practical implication is that food safety risk in Queens is shaped more by restaurant-specific " \
-        "factors — cuisine type and timing — than by broad neighborhood wealth or conditions. This is arguably a " \
-        "more useful and less troubling finding than 'poorer neighborhoods have worse restaurants': it suggests that " \
-        "targeted, cuisine-specific outreach or support (e.g., compliance education tailored to certain cuisine " \
-        "types) and closer attention to seasonal inspection patterns may be more effective levers than income-based " \
-        "interventions alone. Neighborhood conditions still matter — and shouldn't be ignored — but they aren't " \
-        "the dominant story this data tells.")
-
-
-
+    st.write("The practical implication is that food safety risk in Queens is shaped more by restaurant-specific " \
+    "factors — cuisine type and timing — than by broad neighborhood wealth or conditions. This is arguably a " \
+    "more useful and less troubling finding than 'poorer neighborhoods have worse restaurants': it suggests that " \
+    "targeted, cuisine-specific outreach or support (e.g., compliance education tailored to certain cuisine " \
+    "types) and closer attention to seasonal inspection patterns may be more effective levers than income-based " \
+    "interventions alone. Neighborhood conditions still matter — and shouldn't be ignored — but they aren't " \
+    "the dominant story this data tells.")
 
 
 
 
 
 
-        st.subheader("Policy Recommendation")
-
-        st.write("**Problem:** Inspection scores vary meaningfully by both food category and season, but current " \
-        "inspection scheduling does not appear to account for either factor. This means inspection resources may be " \
-        "applied evenly across risk levels, rather than concentrated where violations are most likely.")
-
-        st.write("**Recommendation:** Adjust inspection frequency using two existing, operationally verifiable " \
-        "criteria already available to DOHMH inspectors — rather than cuisine type, which is not a legally " \
-        "appropriate or accurate basis for differential treatment:")
-
-        st.write("1. **Food handling risk category** — Restaurants that prepare raw meat, poultry, or seafood " \
-        "on-site (a designation NYC restaurants already report, similar to how food safety training requirements " \
-        "are assigned) could be scheduled for inspection more frequently than restaurants serving primarily " \
-        "pre-packaged, baked, or low-risk food items.")
-
-        st.write("2. **Seasonal timing** — Inspection scores are consistently higher (worse) in June through August " \
-        "than in other months. Shifting a portion of discretionary/routine inspection capacity toward these summer " \
-        "months, particularly for high-risk food handling establishments, would target inspections toward the period " \
-        "of highest actual risk.")
-
-        st.write("**Why this approach is appropriate:** This recommendation targets inspection resources based on " \
-        "verifiable operational characteristics — what food a restaurant handles and when risk is highest — rather " \
-        "than cuisine type or ownership. This avoids any appearance of targeting specific communities or cuisines, " \
-        "while still addressing the underlying pattern the data reveals. It is consistent with NYC's existing " \
-        "risk-based inspection approach for other programs, such as complaint-driven rodent inspections.")
-
-        st.write("**Before implementation:** This recommendation is based on correlational analysis of three years " \
-        "of inspection data. Before adoption, we'd recommend DOHMH validate that raw protein handling specifically " \
-        "(rather than confounding factors like restaurant size, staffing levels, or kitchen infrastructure) is " \
-        "driving the observed risk difference — for example, through a pilot inspection program in one borough, " \
-        "or by incorporating additional variables such as restaurant square footage or years in operation.")
 
 
-        st.subheader("Limitations")
 
-        st.write("This analysis is based on Queens restaurant inspections from 2023–2026 and does not include the " \
-        "other four boroughs — findings may not generalize citywide without further validation. The model explains " \
-        "29% of score variation, meaning most of the variation in any individual inspection remains unexplained by " \
-        "the factors available here; inspector discretion and day-of conditions likely account for much of the rest. " \
-        "Finally, 311 complaint counts were not normalized by population or restaurant density, so some neighborhood-" \
-        "level comparisons should be treated as directional rather than precise.")
+    st.subheader("Policy Recommendation")
+
+    st.write("**Problem:** Inspection scores vary meaningfully by both food category and season, but current " \
+    "inspection scheduling does not appear to account for either factor. This means inspection resources may be " \
+    "applied evenly across risk levels, rather than concentrated where violations are most likely.")
+
+    st.write("**Recommendation:** Adjust inspection frequency using two existing, operationally verifiable " \
+    "criteria already available to DOHMH inspectors — rather than cuisine type, which is not a legally " \
+    "appropriate or accurate basis for differential treatment:")
+
+    st.write("1. **Food handling risk category** — Restaurants that prepare raw meat, poultry, or seafood " \
+    "on-site (a designation NYC restaurants already report, similar to how food safety training requirements " \
+    "are assigned) could be scheduled for inspection more frequently than restaurants serving primarily " \
+    "pre-packaged, baked, or low-risk food items.")
+
+    st.write("2. **Seasonal timing** — Inspection scores are consistently higher (worse) in June through August " \
+    "than in other months. Shifting a portion of discretionary/routine inspection capacity toward these summer " \
+    "months, particularly for high-risk food handling establishments, would target inspections toward the period " \
+    "of highest actual risk.")
+
+    st.write("**Why this approach is appropriate:** This recommendation targets inspection resources based on " \
+    "verifiable operational characteristics — what food a restaurant handles and when risk is highest — rather " \
+    "than cuisine type or ownership. This avoids any appearance of targeting specific communities or cuisines, " \
+    "while still addressing the underlying pattern the data reveals. It is consistent with NYC's existing " \
+    "risk-based inspection approach for other programs, such as complaint-driven rodent inspections.")
+
+    st.write("**Before implementation:** This recommendation is based on correlational analysis of three years " \
+    "of inspection data. Before adoption, we'd recommend DOHMH validate that raw protein handling specifically " \
+    "(rather than confounding factors like restaurant size, staffing levels, or kitchen infrastructure) is " \
+    "driving the observed risk difference — for example, through a pilot inspection program in one borough, " \
+    "or by incorporating additional variables such as restaurant square footage or years in operation.")
 
 
-        st.subheader("Conclusion")
+    st.subheader("Limitations")
 
-        st.write("Returning to our original question — how does restaurant inspection risk vary across neighborhoods, " \
-        "and what does that suggest about the relationship between neighborhood conditions and food safety outcomes? " \
-        "— the answer is more encouraging than a purely income-driven story would suggest. While neighborhood " \
-        "conditions do correlate with restaurant grades, they are not the dominant driver once other factors are " \
-        "considered. This means interventions don't need to wait on addressing broader neighborhood inequality to " \
-        "meaningfully improve food safety outcomes — targeted, operationally-grounded policy changes, like adjusting " \
-        "inspection timing and frequency by food handling risk, offer a more immediate and actionable path forward.")
+    st.write("This analysis is based on Queens restaurant inspections from 2023–2026 and does not include the " \
+    "other four boroughs — findings may not generalize citywide without further validation. The model explains " \
+    "29% of score variation, meaning most of the variation in any individual inspection remains unexplained by " \
+    "the factors available here; inspector discretion and day-of conditions likely account for much of the rest. " \
+    "Finally, 311 complaint counts were not normalized by population or restaurant density, so some neighborhood-" \
+    "level comparisons should be treated as directional rather than precise.")
+
+
+    st.subheader("Conclusion")
+
+    st.write("Returning to our original question — how does restaurant inspection risk vary across neighborhoods, " \
+    "and what does that suggest about the relationship between neighborhood conditions and food safety outcomes? " \
+    "— the answer is more encouraging than a purely income-driven story would suggest. While neighborhood " \
+    "conditions do correlate with restaurant grades, they are not the dominant driver once other factors are " \
+    "considered. This means interventions don't need to wait on addressing broader neighborhood inequality to " \
+    "meaningfully improve food safety outcomes — targeted, operationally-grounded policy changes, like adjusting " \
+    "inspection timing and frequency by food handling risk, offer a more immediate and actionable path forward.")
