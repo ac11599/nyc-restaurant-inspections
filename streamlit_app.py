@@ -1,533 +1,550 @@
 # --- Package Imports ---
 import streamlit as st
 import pandas as pd
-import sklearn
 import joblib
 
 # --- Setup ---
 st.set_page_config(
     page_title="NYC Restaurant Inspections Dashboard 🌐",
     layout="centered",
-    page_icon="🌐",)
-st.sidebar.header("NYC Restaurant Inspections Dashboad 🌐")
-page = st.sidebar.selectbox("Select Page", [
-                            "Introduction 🗽",
-                            "Explore Datasets 🔍",
-                            "What Drives Restaurant Risk? 📊",
-                            "Predictive Model Dashboard 🔮",
-                            "Policy & Conclusions 💡"])
+    page_icon="🌐",
+)
+
+st.sidebar.header("NYC Restaurant Inspections Dashboard 🌐")
+page = st.sidebar.selectbox(
+    "Select Page",
+    [
+        "Introduction 🗽",
+        "1. Restaurant Risk 🍽️",
+        "2. Risk Varies Across Queens 🗺️",
+        "3. Do Neighborhood Conditions Explain Risk? 📊",
+        "4. What Predicts Risk? 🔮",
+        "5. Policy & Conclusions 💡",
+        "Appendix: Explore Datasets 🔍",
+    ],
+)
 
 # --- Introduction Page ---
 if page == "Introduction 🗽":
-
-    st.title("Introduction 🗽")
+    st.title("NYC Restaurant Inspection Risk 🗽")
 
     st.header("Research Question")
-    st.write("How does restaurant health inspection risk vary across neighborhoods in New York City, "
-             "and what does that variation suggest about the relationship between neighborhood conditions "
-             "and food safety outcomes?")
+    st.write(
+        "**What explains differences in restaurant inspection risk across neighborhoods in New York City?** "
+    )
+    st.write(
+        "I examine restaurant inspections alongside neighborhood income, rodent inspections, "
+        "and 311 complaints to test what factors are associated with food-safety risk."
+    )
 
-    st.header("Overview")
+    st.header("Overview and Importance")
+    st.write(
+        "Food safety inspections play an important role in protecting public health and maintaining "
+        "restaurant quality standards throughout New York City. The NYC Department of Health and Mental Hygiene regularly inspects "
+        "restaurants to evaluate compliance with food safety regulations and assigns inspection scores based on "
+        "observed violations."
+    )
+    st.write(
+        "Most restaurants are inspected at least once per year, although additional inspections may occur "
+        "if violations are found or complaints are received. During inspections, health inspectors evaluate factors "
+        "such as food handling practices, employee hygiene, sanitation, pest control, and facility maintenance."
+    )
+    st.write(
+        "Restaurant inspection risk can vary for many reasons, from neighborhood conditions to characteristics of the restaurant "
+        "itself. Identifying which factors are most useful for predicting risk can help support more targeted and effective "
+        "food safety efforts."
+    )
 
-    st.write("Food safety inspections play an important role in protecting public health and maintaining "
-             "restaurant quality standards throughout New York City. The NYC Department of Health and Mental Hygiene regularly inspects "
-             "restaurants to evaluate compliance with food safety regulations and assigns inspection scores based on "
-             "observed violations.")
+    st.header("How I Investigated It")
+    st.write(
+        "The analysis first looks at restaurant inspection risk, then examines how risk differs "
+        "across neighborhoods and whether neighborhood conditions are related to those differences. "
+        "Finally, it looks at which factors are the strongest predictors of inspection scores."
+    )
 
-    st.write("Inspection scores are calculated by assigning point values to violations identified during an "
-             "inspection. Lower scores indicate better performance, while higher scores indicate more severe or "
-             "numerous violations. Based on these scores, restaurants receive letter grades that are publicly displayed:")
+    st.header("Data")
+    col1, col2 = st.columns(2)
+    col1.metric("Study Area", "Queens")
+    col2.metric("Timeframe", "2023–2026")
+    st.write(
+        "The project combines four sources: restaurant inspection results, rodent inspection results, "
+        "neighborhood median income, and 311 complaints. Income is available across a longer historical period; "
+        "the restaurant, rodent, and 311 analyses focus on 2023–2026."
+    )
+    st.write(
+        "The project combines four sources: "
+    )
+    st.write(
+        "* [Restaurant Inspection Data](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/about_data)\n"
+        "* [Rodent Inspection Data](https://data.cityofnewyork.us/Health/Rodent-Inspection/p937-wjvj/about_data)\n"
+        "* [Income Data](https://data.cccnewyork.org/data/map/66/median-incomes)\n"
+        "* [311 Complaint Data](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9/about_data)"
+    )
+    st.write(
+        "The income data spans a longer period, while the other datasets focus on 2023–2026."
+    )
+    st.caption(
+        "The preliminary data exploration and analysis were conducted in Jupyter Notebook. The notebook is available in the GitHub repository associated with this project."
+    )
 
-    st.write("* Grade A: 0–13 points\n"
-             "* Grade B: 14–27 points\n"
-             "* Grade C: 28 or more points")
+# --- Restaurant Risk Page ---
+elif page == "1. Restaurant Risk 🍽️":
+    st.title("1. What Does Restaurant Risk Look Like? 🍽️")
 
-    st.write("Most restaurants are inspected at least once per year, although additional inspections may occur "
-             "if violations are found or complaints are received. During inspections, health inspectors evaluate factors "
-             "such as food handling practices, employee hygiene, sanitation, pest control, and facility maintenance.")
+    st.write(
+        "Before asking what explains risk, we first need to establish what the outcome looks like. "
+    )
+    st.write(
+        "Inspection scores are calculated by assigning point values to violations identified during an "
+        "inspection. Lower scores indicate better performance, while higher scores indicate more severe or "
+        "numerous violations. Based on these scores, restaurants receive letter grades that are publicly displayed:"
+    )
 
-    st.write("This project explores datasets related to restaurant health and environmental conditions in New York City:")
+    st.write(
+        "* Grade A: 0–13 points\n"
+        "* Grade B: 14–27 points\n"
+        "* Grade C: 28 or more points"
+    )
 
-    st.write("* [Restaurant Inspection Data](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/about_data) – Contains inspection scores, grades, violations, cuisine types, and restaurant characteristics.\n"
-             "* [Rodent Inspection Data](https://data.cityofnewyork.us/Health/Rodent-Inspection/p937-wjvj/about_data) – Provides information about rodent activity and pest-related inspections throughout NYC.\n"
-             "* [Income Data](https://data.cccnewyork.org/data/map/66/median-incomes) – Includes neighborhood-level socioeconomic indicators that may influence environmental conditions and business operations.\n"
-             "* [311 Complaint Data](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2020-to-Present/erm2-nwe9/about_data) - Contains data on 311 complaints throughout New York City")
+    st.info(
+        "**Key takeaway:** Most inspections are on the better-performing end of the distribution, "
+        "but a meaningful tail of higher scores creates room for substantial variation in food-safety outcomes."
+    )
 
-    st.write("Through exploratory analysis, data visualization, and predictive modeling, this dashboard "
-             "investigates the relationships between these factors and identifies the variables that most strongly "
-             "influence restaurant inspection outcomes.")
-
-    st.write("The data used in this project covers the years 2023–2026. "
-             "The only exception is the income data, which includes all available years.")
-
-    st.write("The preliminary data exploration and analysis were conducted in Jupyter Notebook. "
-             "The notebook is available in the GitHub repository associated with this project.")
-
-# --- Explore Datasets Page ---
-elif page == "Explore Datasets 🔍":
-    dataset = st.sidebar.selectbox("Choose a dataset to explore:", [
-        "Restaurant Inspections 🍽️",
-        "Rodent Inspections 🐀",
-        "Income Data 💰",
-        "311 Complaints 📞"
-    ])
-
-    if dataset == "Restaurant Inspections 🍽️":
-        st.title("Restaurant Inspections Analysis 🍽️")
-
-        st.header("Summary Findings")
-        st.write("Queens restaurants overwhelmingly perform well on inspections, with most scores landing "
-                 "in the 10-30 range and the vast majority earning an A grade. Score clustering near the A/B cutoffs "
-                 "suggests grading thresholds may influence outcomes, not just raw compliance. Inspection volume has "
-                 "grown steadily since 2023, with a consistent seasonal dip in November and spike in December. "
-                 "Chinese restaurants make up the largest share of inspections, but this reflects restaurant density "
-                 "in Queens rather than targeted enforcement.")
-
-        st.write("---")
-
-        st.header("Key Metrics")
-
-        tab1, tab2, tab3, tab4 = st.tabs(
-            ["Inspection Score Distribution", "Grade Distribution", "Inspection Count Monthly", "Top Cuisines by Inspection Count"])
-
-        with tab1:
-            st.subheader("Inspection Score Distribution")
-            st.image("figures/restaurant/inspection_score_distribution.png")
-            st.write("Most Queens restaurants score between 10-30 (lower is better), "
-                     "with a long tail of worse scores after that. There are two bumps in the data, "
-                     "right around where the A and B grade cutoffs are")
-
-        with tab2:
-            st.subheader("Grade Distribution")
-            st.image("figures/restaurant/grade_distribution.png")
-            st.write("The vast majority of Queens restaurants get an A grade (~21,000), "
-                     "far more than B and C combined. N, Z, and P (not yet graded, grade pending, pending) "
-                     "are all pretty small by comparison. Matches what the score chart showed — most places cluster on the good end.")
-
-        with tab3:
-            st.subheader("Inspection Count Monthly")
-            st.image("figures/restaurant/number_of_inspections_per_month.png")
-            st.write("Inspections have trended up overall since 2023, from under 1,000/month to consistently over 2,000 by 2025. "
-                     "There's a recurring dip each November (possibly holiday-related scheduling) and a sharp spike each December "
-                     "(maybe a year-end push to hit inspection quotas). The steep drop at the very end (2026-07) is due to a "
-                     "partial month of data.")
-
-        with tab4:
-            st.subheader("Top Cuisines by Inspection Count")
-            st.image(
-                "figures/restaurant/top_15_cuisine_types_by_number_of_inspections.png")
-            st.write("Chinese restaurants are inspected most often (~9,600), followed by American and Latin American (~7,000 and ~6,600). "
-                     "This tracks with prior data exploration showing Chinese restaurants are simply the most common cuisine type in Queens, "
-                     "so the inspection counts likely just reflect restaurant density rather than targeted enforcement. "
-                     "Counts drop off more gradually after the top 3, across Bakery, Caribbean, Pizza, and the rest.")
-    elif dataset == "Rodent Inspections 🐀":
-        st.title("Rodent Inspections Analysis 🐀")
-
-        st.header("Summary Findings")
-        st.write("Rodent inspections in Queens pass more often than they fail, but failures are still substantial — "
-                 "over half of passes in count — and often result directly in bait treatment rather than just a failed flag. "
-                 "The high volume of Initial inspections relative to Compliance and Treatments visits reflects this same "
-                 "pattern, with many follow-up visits needed after failed checks. Inspection volume isn't steady over time: "
-                 "two sharp spikes (Sept 2024, Aug 2025) drove both pass and fail counts up together, suggesting periods of "
-                 "heightened citywide inspection activity.")
-
-        st.write("It's worth noting that rodent inspections are largely complaint-driven, meaning the properties "
-                 "being inspected are more likely to already have a rat issue. This helps explain why the failure rate "
-                 "in this dataset appears high relative to citywide conditions overall.")
-
-        st.write("---")
-
-        st.header("Key Metrics")
-
-        tab1, tab2, tab3 = st.tabs(
-            ["Rodent Inspection Results", "Rodent Inspection Types", "Rodent Inspections Monthly"])
-
-        with tab1:
-            st.subheader("Rodent Inspection Results")
-            st.image("figures/rodent/rodent_inspection_results.png")
-            st.write("Most rodent inspections in Queens result in a Pass (~21,500), but failures aren't rare — "
-                     "combined, 'Failed for Rat Activity,' 'Bait applied,' and 'Failed for Other Reason' add up to well "
-                     "over half the pass count. 'Bait applied' sits close to 'Failed for Rat Activity' in count, suggesting "
-                     "many failures lead directly to treatment action rather than just a flag.")
-
-        with tab2:
-            st.subheader("Rodent Inspection Types")
-            st.image("figures/rodent/rodent_inspection_types.png")
-            st.write("Most rodent inspections are Initial visits (~28,000), roughly double the combined "
-                     "Compliance and Treatments visits. This tracks with the previous chart — since about half of "
-                     "initial inspections fail, it makes sense to see a large volume of follow-up Compliance and "
-                     "Treatments visits after the fact.")
-
-        with tab3:
-            st.subheader("Rodent Inspections Monthly")
-            st.image("figures/rodent/failed_rodent_inspections_per_month.png")
-            st.write("Failed rodent inspections stay fairly steady month to month, generally in the 300-600 range, "
-                     "with two sharp spikes around September 2024 and August 2025.")
-
-            st.write("\n")
-
-            st.image("figures/rodent/pass_vs_fail_inspections_per_month.png")
-            st.write("The same two months also show large spikes in passed inspections, 3-4x the surrounding months — "
-                     "so both failed and passed counts rise together during these periods.")
-
-            st.write("\n")
-
-            st.write("These spikes likely reflect periods of heightened inspection activity overall, rather than a "
-                     "sudden worsening of rodent conditions. Possible drivers include seasonal rat activity (rats are more "
-                     "active in warmer months), targeted enforcement sweeps in specific neighborhoods, or a surge in 311 "
-                     "complaints prompting a wave of inspections.")
-    elif dataset == "Income Data 💰":
-        st.title("Income Data Analysis 💰")
-
-        st.header("Summary Findings")
-        st.write("Median household income in Queens varies substantially by neighborhood, ranging from around "
-                 "\\$69,000 in Flushing to over \\$115,000 in Queens Village — a gap that has generally persisted over time, "
-                 "with denser, immigrant-heavy neighborhoods tending to sit at the lower end and more suburban, homeowner-heavy "
-                 "neighborhoods at the higher end. Most neighborhoods have trended upward since 2005, though some (The "
-                 "Rockaways, Elmhurst/Corona) show more volatility, possibly tied to smaller population bases or disruptive "
-                 "events. At the household level, families earn more than the Queens average overall, and families without "
-                 "children out-earn families with children, likely reflecting dual-income households with fewer dependent-"
-                 "related costs.")
-
-        st.write("---")
-
-        st.header("Key Metrics")
-
-        tab1, tab2, tab3 = st.tabs(
-            ["Median Neighborhood Income", "Median Income by Household Type", "Top 5 vs Bottom 5 Neighborhoods by Income"])
-
-        with tab1:
-            st.subheader("Median Neighborhood Income")
-            st.image(
-                "figures/income/median_household_income_by_neighborhood_queens2024.png")
-            st.write("Median household income varies widely across Queens neighborhoods, from around \\$69,000 in "
-                     "Flushing to over \\$115,000 in Queens Village. Roughly half the neighborhoods fall below the Queens average.")
-
-            st.write("\n")
-
-            st.image(
-                "figures/income/median_household_income_over_time_by_neighborhood_queens.png")
-            st.write("Most neighborhoods show a general upward trend in median income from 2005 to 2024, though with "
-                     "notable year-to-year volatility for some (like The Rockaways and Elmhurst/Corona). Queens Village and "
-                     "Bayside consistently rank among the highest earners throughout the period.")
-            st.write("The volatility in neighborhoods like The Rockaways and Elmhurst/Corona may reflect smaller "
-                     "population bases, shifting immigration patterns, or disruptive events like COVID-19. "
-                     "Queens Village and Bayside's consistently high incomes likely reflect their more suburban, homeowner-heavy "
-                     "makeup compared to denser, more transient neighborhoods elsewhere in the borough.")
-
-        with tab2:
-            st.subheader("Median Income by Household Type")
-            st.image(
-                "figures/income/median_income_by_household_type_queens2024.png")
-            st.write("Families have a higher median income (\\$94,000) than the overall Queens average (\\$85,000), "
-                     "and families without children out-earn families with children (\\$96,000 vs \\$91,000) — likely reflecting "
-                     "dual-income households with fewer dependent-related work interruptions or expenses.")
-
-        with tab3:
-            st.subheader("Top 5 vs Bottom 5 Neighborhoods by Income")
-            st.image(
-                "figures/income/top5_vs_bottom5_neighborhoods_by_median_income_queens2024.png")
-            st.write("The gap between the top and bottom 5 neighborhoods is substantial — Queens Village "
-                     "(\\$115,000) earns nearly 70% more than Flushing (\\$69,000). The bottom 5 are largely denser, "
-                     "immigrant-heavy neighborhoods, while the top 5 skew more suburban.")
-    elif dataset == "311 Complaints 📞":
-        st.title("311 Complaints Analysis Page 📞")
-
-        st.header("Summary Findings")
-        st.write("311 complaints in Queens are dominated by parking and noise-related issues, with Illegal Parking "
-                 "alone accounting for far more complaints than any other category. This is reflected in agency volume too — "
-                 "NYPD receives the vast majority of complaints, well ahead of HPD, DSNY, and others, since parking, noise, "
-                 "and vehicle issues all route through them. Complaint volume overall has trended upward since 2023, and "
-                 "some categories show clear seasonal patterns, most notably HEAT/HOT WATER complaints spiking in winter "
-                 "months and dropping off in summer.")
-        st.write("---")
-
-        st.header("Key Metrics")
-
-        tab1, tab2, tab3 = st.tabs(
-            ["Top Complaint Types", "Complaints by Agency", "Complaints Monthly"])
-
-        with tab1:
-            st.subheader("Top Complaint Types")
-            st.image("figures/complaints/top_15_complaint_types.png")
-            st.write("Illegal Parking is by far the most common 311 complaint in Queens (~575,000), more than "
-                     "double the next highest category. Blocked Driveway and Noise - Residential follow closely behind "
-                     "each other, and complaints drop off more gradually after that.")
-
-        with tab2:
-            st.subheader("Complaints by Agency")
-            st.image("figures/complaints/complaints_by_agency.png")
-            st.write("NYPD receives by far the most 311 complaints (~1.5M), more than 4x the next highest agency "
-                     "(HPD). This tracks with the top complaint types chart — parking, noise, and vehicle complaints all "
-                     "route to NYPD, which explains the outsized volume.")
-
-        with tab3:
-            st.subheader("Complaints Monthly")
-            st.image("figures/complaints/total_complaints_per_month.png")
-            st.write("Total 311 complaints trend upward overall since 2023, from ~43,000/month to consistently "
-                     "over 75,000. The sharp drop at the very end (2026-07) is due to a partial month of data.")
-
-            st.write("\n")
-
-            st.image("figures/complaints/top_5_complaint_types_per_month.png")
-            st.write("Illegal Parking stays the top complaint type nearly every month, with HEAT/HOT WATER showing "
-                     "a strong seasonal pattern — spiking each winter and dropping off in summer, as expected.")
-
-# --- What Drives Restaurant Risk? Page ---
-elif page == "What Drives Restaurant Risk? 📊":
-
-    st.title("What Drives Restaurant Risk? 📊")
-    st.header("Research Question")
-    st.write("How does restaurant health inspection risk vary across neighborhoods "
-             "in New York City, and what does that variation suggest about the relationship between neighborhood "
-             "conditions and food safety outcomes?")
-
-    st.write("Each prior section explored one dataset on its own. Here, we bring income, rodent inspections, "
-             "and 311 complaints together with restaurant grades to test whether they're related, and what that "
-             "tells us about food safety risk across Queens neighborhoods.")
-
-    st.header("Summary Findings")
-    st.write("Restaurant inspection risk varies meaningfully across Queens neighborhoods. At the neighborhood " \
-    "level, rodent inspection outcomes show the strongest correlation with restaurant A-grade rates (-0.58), " \
-    "suggesting these datasets may reflect some shared underlying conditions, like building age or general " \
-    "sanitation infrastructure. Income shows a much weaker correlation (0.21), and 311 complaint volume falls " \
-    "in between.")
-
-    st.write("These are neighborhood-level correlations, though, and correlation alone can't tell us how much " \
-    "each factor actually matters once other variables — like what type of restaurant it is, or when it's " \
-    "inspected — are taken into account. The Predictive Model section tests this directly, and finds a more " \
-    "nuanced picture: once cuisine type and inspection timing are factored in, neighborhood conditions still " \
-    "matter, but play a smaller role than these raw correlations might suggest on their own.")
-
-    tab1, tab2, tab3, tab4 = st.tabs(
-        ["Correlation Overview", "Risk Factors vs Restaurant Grades",
-         "Neighborhood Risk Ranking", "Explore a Neighborhood"])
+    tab1, tab2 = st.tabs(["Inspection Scores", "Letter Grades"])
 
     with tab1:
-        st.subheader("Correlation Overview")
-        st.image("figures/integrated/correlation_heatmap.png")
-        st.write("Restaurant A-grade rate correlates most strongly with rodent inspection failure rate (-0.58), "
-                 "suggesting both reflect shared neighborhood-level sanitation conditions. Median income shows only a weak "
-                 "relationship with restaurant grades (0.21), while 311 complaint volume shows a moderate negative "
-                 "relationship with income (-0.57) and a moderate positive relationship with rodent failures (0.51).")
+        st.subheader("Inspection Score Distribution")
+        st.image("figures/restaurant/inspection_score_distribution.png")
+        st.write(
+            "Most Queens restaurants score in roughly the 10–30 range, with a long tail of higher scores. "
+            "The visible clustering near the A/B cutoffs also highlights that grade thresholds can shape how raw scores translate into public-facing grades."
+        )
 
     with tab2:
-        st.subheader("Risk Factors vs Restaurant Grades")
+        st.subheader("Grade Distribution")
+        st.image("figures/restaurant/grade_distribution.png")
+        st.write(
+            "The vast majority of inspections receive an A, while B and C grades make up a much smaller share. "
+            "So the central question is not whether most restaurants are safe enough to earn an A — it is why the risk profile still varies across places and restaurant types."
+        )
 
-        st.image("figures/integrated/rodent_vs_restaurant_grade_rate.png")
-        st.write("Rodent failure rate shows the clearest relationship with restaurant grades — neighborhoods "
-                 "with more rodent problems tend to have lower A-grade rates, pointing to shared underlying conditions "
-                 "like building age, density, or general sanitation infrastructure.")
+    st.write("---")
 
-        st.write("\n")
+    st.subheader("A Useful Context, Not a Main Finding")
+    st.write(
+        "Inspection volume has increased over the study period, and the number of inspections varies throughout the year. "
+        "These patterns matter because the timing and frequency of inspections can affect what the model learns. "
+        "The detailed inspection-volume charts are in the appendix."
+    )
 
-        st.image("figures/integrated/income_vs_restaurant_grade_rate.png")
-        st.write("Income's relationship with restaurant grades is notably weak. Some lower-income neighborhoods "
-                 "(The Rockaways, Howard Beach) actually have among the highest A-grade rates, while higher-income Queens "
-                 "Village sits only in the middle — suggesting income alone doesn't determine food safety outcomes.")
+    st.write("### The next question...")
+    st.success(
+        "If most restaurants earn an A, **what explains the differences in restaurant risk?**"
+    )
 
-        st.write("\n")
+# --- Neighborhood Variation Page ---
+elif page == "2. Risk Varies Across Queens 🗺️":
+    st.title("2. Risk Varies Across Queens 🗺️")
 
-        st.image("figures/integrated/complaints_vs_restaurant_grade_rate.png")
-        st.write("311 complaint volume shows a moderate negative relationship with restaurant grades. This makes "
-                 "some intuitive sense — neighborhoods generating more complaints overall may also have more underlying "
-                 "conditions that affect food safety, though complaint counts aren't normalized by population here.")
+    st.write(
+        "The first important pattern is geographic: restaurant outcomes are not uniform across Queens. "
+        "I ranked neighborhoods by their A-grade rate to make that variation visible."
+    )
 
-    with tab3:
-        st.subheader("Neighborhood Risk Ranking")
-        st.image("figures/integrated/restaurant_grade_rate_neighborhoods_ranked.png")
-        st.write("Ranking neighborhoods by A-grade rate shows meaningful variation across Queens — from Flushing "
-                 "at the low end (~53%) to Howard Beach at the high end (~77%). Notably, this ranking doesn't track cleanly "
-                 "with income: Howard Beach and The Rockaways (lower/mid income) outperform Queens Village (highest income), "
-                 "while Flushing (lowest income) does sit at the bottom, showing the relationship isn't purely deterministic.")
+    st.subheader("Restaurant A-Grade Rate by Neighborhood")
+    st.image("figures/integrated/restaurant_grade_rate_neighborhoods_ranked.png")
 
-    with tab4:
-        st.subheader("Explore a Neighborhood")
+    st.info(
+        "**The spread is substantial:** the neighborhood ranking runs from roughly **53% A grades in Flushing** "
+        "to roughly **77% in Howard Beach**."
+    )
 
-        merged = pd.read_csv("merged_neighborhood_summary.csv")
+    st.write(
+        "That geographic variation raises the obvious next question: do neighborhood conditions explain the differences? "
+        "If they do, we would expect restaurant risk to line up with measures such as neighborhood income, rodent activity, or 311 complaints."
+    )
 
-        selected = st.selectbox("Choose a neighborhood:",
-                                sorted(merged['neighborhood']))
-        row = merged[merged['neighborhood'] == selected].iloc[0]
+    st.subheader("Explore a Neighborhood")
+    merged = pd.read_csv("merged_neighborhood_summary.csv")
+    selected = st.selectbox("Choose a neighborhood:",
+                            sorted(merged["neighborhood"]))
+    row = merged[merged["neighborhood"] == selected].iloc[0]
 
-        col1, col2, col3, col4 = st.columns(4)
-        col1.metric("Median Income", f"${row['median_income']:,.0f}")
-        col2.metric("A-Grade Rate", f"{row['pct_grade_a']*100:.1f}%")
-        col3.metric("Rodent Fail Rate", f"{row['rodent_fail_rate']*100:.1f}%")
-        col4.metric("311 Complaints", f"{row['complaint_count']:,}")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Median Income", f"${row['median_income']:,.0f}")
+    col2.metric("A-Grade Rate", f"{row['pct_grade_a'] * 100:.1f}%")
+    col3.metric("Rodent Fail Rate", f"{row['rodent_fail_rate'] * 100:.1f}%")
+    col4.metric("311 Complaints", f"{row['complaint_count']:,}")
 
-# --- Predictive Model Dashboard Page ---
-elif page == "Predictive Model Dashboard 🔮":
+    st.write("### The Next Question")
+    st.success(
+        "Neighborhoods differ in both restaurant inspection results and the conditions around them. "
+        "**Are those differences in neighborhood conditions related to restaurant risk?**"
+    )
 
-    st.title("Predictive Model Dashboard 🔮")
+# --- Neighborhood Conditions Page ---
+elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
+    st.title("3. Do Neighborhood Conditions Explain Risk? 📊")
 
-    # Load everything once
-    model = joblib.load('model/restaurant_score_model.pkl')
-    model_columns = joblib.load('model/model_columns.pkl')
-    cuisine_list = joblib.load('model/cuisine_list.pkl')
-    neighborhood_list = joblib.load('model/neighborhood_list.pkl')
-    neighborhood_stats = pd.read_csv('merged_neighborhood_summary.csv')
+    st.write(
+        "We now bring neighborhood-level data into the restaurant analysis, focusing on a narrower question: "
+        "**are neighborhood conditions associated with restaurant outcomes?**"
+    )
 
-    st.header("Predictive Model: Restaurant Inspection Risk")
-    st.write("Select a cuisine type, neighborhood, and month to predict an inspection score and estimated grade.")
+    st.subheader("The Neighborhood-Level Correlations")
+    st.image("figures/integrated/correlation_heatmap.png")
 
-    # User inputs
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Income vs. A-grade rate", "+0.21")
+    col2.metric("Rodent failures vs. A-grade rate", "−0.58")
+    col3.metric("311 vs. A-grade rate", "-0.41")
+
+    st.write(
+        "Rodent inspection failure rate has the strongest neighborhood-level relationship with restaurant A-grade rate. "
+        "Income is much weaker than we might expect from a simple ‘wealthier neighborhood = safer restaurant’ story. "
+        "311 complaint volume sits between the two, although raw complaint counts are not normalized by population or restaurant density."
+    )
+
+    st.subheader("Rodent Conditions Show the Clearest Relationship")
+    st.image("figures/integrated/rodent_vs_restaurant_grade_rate.png")
+    st.write(
+        "Neighborhoods with more rodent inspection failures tend to have lower A-grade rates. "
+        "This could reflect shared underlying conditions such as building age, density, sanitation infrastructure, "
+        "or differences in inspection activity. The correlation alone cannot distinguish among these explanations."
+    )
+
+    st.subheader("Income Is Much Less Predictive at the Neighborhood Level")
+    st.image("figures/integrated/income_vs_restaurant_grade_rate.png")
+    st.write(
+        "Income shows only a weak relationship with restaurant grades. Some lower- or middle-income neighborhoods "
+        "perform very well, while Queens Village — among the highest-income neighborhoods — sits closer to the middle of the restaurant ranking."
+    )
+
+    st.subheader("311 Complaint Volume Adds Context")
+    st.image("figures/integrated/complaints_vs_restaurant_grade_rate.png")
+    st.write(
+        "311 complaint volume is moderately related to restaurant grades, but this measure should be treated as directional "
+        "because complaint counts are not normalized for population or restaurant density."
+    )
+
+    st.write("### But there is a catch")
+    st.success(
+        "These are neighborhood-level correlations. They tell us what moves together — **not which variables are most important.**"
+    )
+
+# --- Predictive Model Page ---
+elif page == "4. What Predicts Risk? 🔮":
+    st.title("4. What Predicts Risk? 🔮")
+
+    st.header("The Key Test")
+    st.write(
+        "The neighborhood analysis gives us an important clue, but it does not tell us whether neighborhood conditions are the strongest signals. "
+        "To test that, we built a model using cuisine type, neighborhood, inspection month, median income, rodent failure rate, and 311 complaint volume."
+    )
+
+    st.info(
+        "Once these variables are considered together, the strongest predictive signals are **cuisine type and inspection month**, not neighborhood conditions."
+    )
+
+    st.subheader("Model Performance")
+    col1, col2, col3 = st.columns([0.5, 1, 1.5])
+    col1.metric("R²", "0.29")
+    col2.metric("RMSE", "~15.9 points")
+    col3.metric("Outcome", "Inspection score")
+
+    st.write(
+        "The model explains about 29% of the variation in inspection scores. That is a modest result: most of the variation in any individual inspection remains unexplained, "
+        "which is consistent with the fact that inspection outcomes depend on day-of conditions and other restaurant-level factors that are not present in this dataset."
+    )
+
+    st.subheader("What Matters Most for Prediction?")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Cuisine type", "38%", delta="Strongest signal")
+    col2.metric("Inspection month", "32%", delta="Second strongest")
+    col3.metric("Neighborhood + conditions", "<25%", delta="Secondary")
+
+    st.write(
+        "Cuisine type is the single strongest reported feature group, accounting for 38% of total importance. "
+        "Inspection month is a close second at 32%. Neighborhood identity and the neighborhood-level conditions together are clearly secondary in the model."
+    )
+
+    st.success(
+        "### The main finding\n\n"
+        "**What kind of restaurant it is, and when it gets inspected, matter more for prediction than what neighborhood it is in.**"
+    )
+
+    st.subheader("Why This Changes the Story")
+    st.write(
+        "The earlier correlations could make neighborhood conditions look like the main explanation for restaurant risk. "
+        "The model adds an important layer of context: neighborhood conditions still carry signal, but they are not the dominant predictive story after accounting for restaurant characteristics and inspection timing."
+    )
+
+    st.subheader("Interactive Risk Prediction")
+    st.write("Choose a cuisine type, neighborhood, and inspection month to see the model's estimated inspection score and grade.")
+
+    # Load model resources only on this page.
+    model = joblib.load("model/restaurant_score_model.pkl")
+    model_columns = joblib.load("model/model_columns.pkl")
+    cuisine_list = joblib.load("model/cuisine_list.pkl")
+    neighborhood_list = joblib.load("model/neighborhood_list.pkl")
+    neighborhood_stats = pd.read_csv("merged_neighborhood_summary.csv")
+
     col1, col2, col3 = st.columns(3)
     cuisine = col1.selectbox("Cuisine Type", cuisine_list)
     neighborhood = col2.selectbox("Neighborhood", neighborhood_list)
-    month = col3.selectbox("Month", list(range(1, 13)), 
-                            format_func=lambda x: pd.Timestamp(2024, x, 1).strftime('%B'))
+    month = col3.selectbox(
+        "Inspection Month",
+        list(range(1, 13)),
+        format_func=lambda x: pd.Timestamp(2024, x, 1).strftime("%B"),
+    )
 
     if st.button("Predict Inspection Score"):
-        # Look up neighborhood stats
-        stats_row = neighborhood_stats[neighborhood_stats['neighborhood'] == neighborhood].iloc[0]
-        
-        # Build input row, starting all zeros
+        stats_row = neighborhood_stats[neighborhood_stats["neighborhood"]
+                                       == neighborhood].iloc[0]
+
         input_row = pd.DataFrame(0, index=[0], columns=model_columns)
-        
-        # Set numeric features
-        input_row['month_num'] = month
-        input_row['median_income'] = stats_row['median_income']
-        input_row['rodent_fail_rate'] = stats_row['rodent_fail_rate']
-        input_row['complaint_count'] = stats_row['complaint_count']
-        
-        # Set the correct one-hot columns to 1
-        cuisine_col = f'cuisine_description_{cuisine}'
-        neighborhood_col = f'neighborhood_{neighborhood}'
-        
+        input_row["month_num"] = month
+        input_row["median_income"] = stats_row["median_income"]
+        input_row["rodent_fail_rate"] = stats_row["rodent_fail_rate"]
+        input_row["complaint_count"] = stats_row["complaint_count"]
+
+        cuisine_col = f"cuisine_description_{cuisine}"
+        neighborhood_col = f"neighborhood_{neighborhood}"
+
         if cuisine_col in input_row.columns:
             input_row[cuisine_col] = 1
         if neighborhood_col in input_row.columns:
             input_row[neighborhood_col] = 1
-        
-        # Predict
+
         predicted_score = model.predict(input_row)[0]
-        
-        # Convert to grade using NYC cutoffs
+
         if predicted_score <= 13:
             predicted_grade = "A"
         elif predicted_score <= 27:
             predicted_grade = "B"
         else:
             predicted_grade = "C"
-        
-        # Display results
+
         col1, col2 = st.columns(2)
         col1.metric("Predicted Score", f"{predicted_score:.1f}")
         col2.metric("Predicted Grade", predicted_grade)
-        
-        st.caption("Note: predictions are estimates based on historical patterns and may not reflect any individual restaurant's actual outcome. Model RMSE: ~15.9 points, R²: 0.29.")
 
-    st.subheader("What This Model Tells Us")
-    
-    st.write("This model predicts a restaurant's inspection score using cuisine type, neighborhood, inspection " \
-    "month, and three neighborhood-level conditions pulled from the integrated analysis: median income, rodent " \
-    "inspection failure rate, and 311 complaint volume. It explains about 29% of the variation in scores " \
-    "(R² = 0.29, RMSE ≈ 16 points). That's a modest but meaningful result — inspection outcomes have a lot of " \
-    "inherent randomness (what an inspector happens to find on a given day), so capturing even a partial pattern " \
-    "from these features is a real signal, not noise.")
-
-    st.write("The biggest surprise is what actually drives predictions. Cuisine type, taken as a whole, is the " \
-    "single strongest predictor (38% of total importance) — more than double any other category. Seasonality " \
-    "(inspection month) is a close second at 32%. Neighborhood identity and neighborhood-level conditions " \
-    "(income, rodent activity, complaints combined) matter, but play a clearly secondary role, together " \
-    "accounting for less than a quarter of the model's decisions.")
-
-    st.write("This flips the assumption our integrated analysis correlations might have suggested. Income and " \
-    "rodent activity do correlate with restaurant grades at the neighborhood level, but once cuisine type and " \
-    "inspection timing are accounted for, they explain relatively little on their own. In other words: " \
-    "**what kind of restaurant it is, and when it gets inspected, matter more than what neighborhood it's in.**")
+        st.caption(
+            "Predictions are estimates based on historical patterns and may not reflect an individual restaurant's actual outcome. "
+            "Model performance: RMSE ~15.9 points; R² = 0.29."
+        )
 
     st.subheader("Correlation, Not Causation")
+    st.write(
+        "Neither the correlations nor the model establish causal relationships. For example, a neighborhood with more rodent failures "
+        "may also have older buildings, denser development, or other shared conditions. Similarly, a cuisine category's "
+        "predictive importance does not mean the cuisine itself causes worse inspection outcomes."
+    )
 
-    st.write("It's important to be clear about what this model can and can't claim. None of these relationships " \
-    "are causal. Lower income doesn't cause worse food safety outcomes, and rodent activity doesn't directly " \
-    "cause lower restaurant grades. It's far more likely that income, rodent activity, and 311 complaint volume " \
-    "are all symptoms of the same underlying conditions — older housing stock, under-resourced infrastructure, " \
-    "or differences in inspection frequency and enforcement — rather than one factor driving another.")
+    st.write(
+        "That distinction is especially important when translating the model into policy: **use predictive signals as evidence for further investigation, "
+        "not as proof that one community, cuisine, or neighborhood causes another outcome.**"
+    )
 
-    st.write("Bangladeshi restaurants offer a good example of why this distinction matters. They show the second-" \
-    "highest cuisine-level importance in the model, with a notably high average score (~43, based on over 1,000 " \
-    "inspections). Without more context, it would be easy to draw the wrong conclusion here. The real explanation " \
-    "could involve restaurant size, business informality, neighborhood concentration, or how inspectors evaluate " \
-    "different cuisine types — this dataset alone can't isolate the cause, and it would be a mistake to imply one.")
-    
-elif page == "Policy & Conclusions 💡":
-    st.subheader("Executive Summary")
+# --- Policy & Conclusions Page ---
+elif page == "5. Policy & Conclusions 💡":
+    st.title("5. What Should We Do With the Finding? 💡")
 
-    st.write("Restaurant inspection risk in Queens is shaped less by neighborhood income and more by what a " \
-    "restaurant serves and when it's inspected. Cuisines involving substantial raw meat, poultry, or seafood " \
-    "handling show meaningfully higher risk, and inspection scores are consistently worse in summer months. " \
-    "We recommend adjusting inspection frequency based on food handling risk category and season — not " \
-    "neighborhood or cuisine identity — to make better use of existing inspection resources.")
+    st.header("Executive Summary")
+    st.write(
+        "Restaurant inspection risk in Queens varies meaningfully across neighborhoods, but the evidence does not support a simple neighborhood-based explanation. "
+        "Neighborhood conditions — especially rodent inspection failure rates — are associated with restaurant outcomes, yet the predictive model shows that "
+        "**cuisine type and inspection month are the strongest reported signals** once the variables are considered together."
+    )
 
-    st.subheader("So What?")
-
-    st.write("The practical implication is that food safety risk in Queens is shaped more by restaurant-specific " \
-    "factors — cuisine type and timing — than by broad neighborhood wealth or conditions. This is arguably a " \
-    "more useful and less troubling finding than 'poorer neighborhoods have worse restaurants': it suggests that " \
-    "targeted, cuisine-specific outreach or support (e.g., compliance education tailored to certain cuisine " \
-    "types) and closer attention to seasonal inspection patterns may be more effective levers than income-based " \
-    "interventions alone. Neighborhood conditions still matter — and shouldn't be ignored — but they aren't " \
-    "the dominant story this data tells.")
-
-
-
-
-
-
-
-
+    st.header("So What?")
+    st.write(
+        "The practical implication is that food-safety interventions do not need to rely on broad assumptions about neighborhood conditions. "
+        "A more useful approach is to investigate restaurant-specific operational risk and the timing of inspections, while treating neighborhood conditions as valuable context rather than the dominant explanation."
+    )
 
     st.subheader("Policy Recommendation")
+    st.write(
+        "**Recommendation:** Use cuisine and seasonality to guide further risk analysis, but avoid treating specific cuisines or neighborhoods as inherently higher risk."
+    )
 
-    st.write("**Problem:** Inspection scores vary meaningfully by both food category and season, but current " \
-    "inspection scheduling does not appear to account for either factor. This means inspection resources may be " \
-    "applied evenly across risk levels, rather than concentrated where violations are most likely.")
+    st.write("**1. Test food-handling risk categories.**")
+    st.write(
+        "Cuisine is the strongest predictor in the current model, but that does not mean certain cuisines should be "
+        "targeted. Instead, we should look at specific food-handling practices, such as preparing raw meat, poultry, "
+        "or seafood on-site, to see what may be driving the pattern."
+    )
 
-    st.write("**Recommendation:** Adjust inspection frequency using two existing, operationally verifiable " \
-    "criteria already available to DOHMH inspectors — rather than cuisine type, which is not a legally " \
-    "appropriate or accurate basis for differential treatment:")
+    st.write("**2. Test inspection timing as a risk signal.**")
+    st.write(
+        "Inspection month is the second strongest predictive signal "
+        "in the model, accounting for 32% of the reported importance. Possible reasons include changes in restaurant activity, "
+        "staffing, weather conditions, or inspection scheduling throughout the year. Further analysis could help "
+        "determine which of these factors may be driving the seasonal pattern before using it to inform inspection planning."
+    )
 
-    st.write("1. **Food handling risk category** — Restaurants that prepare raw meat, poultry, or seafood " \
-    "on-site (a designation NYC restaurants already report, similar to how food safety training requirements " \
-    "are assigned) could be scheduled for inspection more frequently than restaurants serving primarily " \
-    "pre-packaged, baked, or low-risk food items.")
-
-    st.write("2. **Seasonal timing** — Inspection scores are consistently higher (worse) in June through August " \
-    "than in other months. Shifting a portion of discretionary/routine inspection capacity toward these summer " \
-    "months, particularly for high-risk food handling establishments, would target inspections toward the period " \
-    "of highest actual risk.")
-
-    st.write("**Why this approach is appropriate:** This recommendation targets inspection resources based on " \
-    "verifiable operational characteristics — what food a restaurant handles and when risk is highest — rather " \
-    "than cuisine type or ownership. This avoids any appearance of targeting specific communities or cuisines, " \
-    "while still addressing the underlying pattern the data reveals. It is consistent with NYC's existing " \
-    "risk-based inspection approach for other programs, such as complaint-driven rodent inspections.")
-
-    st.write("**Before implementation:** This recommendation is based on correlational analysis of three years " \
-    "of inspection data. Before adoption, we'd recommend DOHMH validate that raw protein handling specifically " \
-    "(rather than confounding factors like restaurant size, staffing levels, or kitchen infrastructure) is " \
-    "driving the observed risk difference — for example, through a pilot inspection program in one borough, " \
-    "or by incorporating additional variables such as restaurant square footage or years in operation.")
-
+    st.write("**Why this approach is preferable:**")
+    st.write(
+        "It focuses future targeting on characteristics that can be measured directly at the restaurant level, rather than assigning higher risk to a neighborhood or cuisine."
+    )
 
     st.subheader("Limitations")
+    st.write(
+        "This analysis covers Queens restaurant inspections from 2023–2026, so the findings should not automatically be generalized to the other four boroughs. "
+        "The model explains 29% of score variation, meaning most of the variation in an individual inspection remains unexplained. "
+        "311 complaint counts are not normalized by population or restaurant density, so some neighborhood comparisons are directional. "
+        "Finally, the analysis is observational and cannot establish causality."
+    )
 
-    st.write("This analysis is based on Queens restaurant inspections from 2023–2026 and does not include the " \
-    "other four boroughs — findings may not generalize citywide without further validation. The model explains " \
-    "29% of score variation, meaning most of the variation in any individual inspection remains unexplained by " \
-    "the factors available here; inspector discretion and day-of conditions likely account for much of the rest. " \
-    "Finally, 311 complaint counts were not normalized by population or restaurant density, so some neighborhood-" \
-    "level comparisons should be treated as directional rather than precise.")
+    st.header("Conclusion")
+    st.write(
+        "Returning to the original question — what explains differences in restaurant inspection risk across neighborhoods in New York City? — the answer is more nuanced than a purely neighborhood-based story. "
+        "Neighborhood conditions do correlate with restaurant outcomes, with rodent failure rate showing the clearest relationship, but those neighborhood-level signals become secondary once restaurant characteristics and inspection timing are considered."
+    )
 
+    st.success(
+        "**Bottom line:** The strongest predictive signals in this analysis are **what kind of restaurant it is and when the inspection occurs**. "
+        "That points toward targeted, operationally grounded risk strategies rather than income- or neighborhood-based assumptions."
+    )
 
-    st.subheader("Conclusion")
+# --- Appendix / Detailed Dataset Exploration ---
+elif page == "Appendix: Explore Datasets 🔍":
+    st.title("Appendix: Explore Datasets 🔍")
+    st.write(
+        "This section preserves the detailed exploratory analysis from the original dashboard. "
+        "It is intentionally separated from the main story so that the presentation can stay focused while the underlying evidence remains available."
+    )
 
-    st.write("Returning to our original question — how does restaurant inspection risk vary across neighborhoods, " \
-    "and what does that suggest about the relationship between neighborhood conditions and food safety outcomes? " \
-    "— the answer is more encouraging than a purely income-driven story would suggest. While neighborhood " \
-    "conditions do correlate with restaurant grades, they are not the dominant driver once other factors are " \
-    "considered. This means interventions don't need to wait on addressing broader neighborhood inequality to " \
-    "meaningfully improve food safety outcomes — targeted, operationally-grounded policy changes, like adjusting " \
-    "inspection timing and frequency by food handling risk, offer a more immediate and actionable path forward.")
+    dataset = st.sidebar.selectbox(
+        "Choose a dataset to explore:",
+        [
+            "Restaurant Inspections 🍽️",
+            "Rodent Inspections 🐀",
+            "Income Data 💰",
+            "311 Complaints 📞",
+        ],
+    )
+
+    if dataset == "Restaurant Inspections 🍽️":
+        st.title("Restaurant Inspections Analysis 🍽️")
+        st.header("Inspection Volume and Cuisine Context")
+
+        tab1, tab2 = st.tabs(
+            ["Inspection Count Monthly", "Top Cuisines by Inspection Count"])
+
+        with tab1:
+            st.subheader("Inspection Count Monthly")
+            st.image("figures/restaurant/number_of_inspections_per_month.png")
+            st.write(
+                "Inspections have trended upward overall since 2023, with a recurring November dip and December spike. "
+                "The sharp drop at the very end (2026-07) reflects a partial month of data."
+            )
+
+        with tab2:
+            st.subheader("Top Cuisines by Inspection Count")
+            st.image(
+                "figures/restaurant/top_15_cuisine_types_by_number_of_inspections.png")
+            st.write(
+                "Chinese restaurants account for the largest number of inspections, followed by American and Latin American. "
+                "Inspection counts are primarily useful here as a measure of restaurant prevalence, not as a direct measure of risk."
+            )
+
+    elif dataset == "Rodent Inspections 🐀":
+        st.title("Rodent Inspections Analysis 🐀")
+        st.write(
+            "Rodent inspections are an important context variable because they provide a neighborhood-level indicator of pest-related conditions. "
+            "They are also largely complaint-driven, so the inspected properties are not a random sample of all properties."
+        )
+
+        tab1, tab2 = st.tabs(
+            ["Rodent Inspection Results", "Rodent Inspections Monthly"])
+
+        with tab1:
+            st.subheader("Rodent Inspection Results")
+            st.image("figures/rodent/rodent_inspection_results.png")
+            st.write(
+                "Most rodent inspections result in a pass, but failures and treatment actions are substantial. "
+                "Because these inspections are often complaint-driven, the failure rate should not be interpreted as a citywide estimate of rodent prevalence."
+            )
+
+        with tab2:
+            st.subheader("Rodent Inspections Monthly")
+            st.image("figures/rodent/failed_rodent_inspections_per_month.png")
+            st.write(
+                "Failed rodent inspections are generally in the 300–600 range, with notable spikes around September 2024 and August 2025.")
+            st.image("figures/rodent/pass_vs_fail_inspections_per_month.png")
+            st.write(
+                "Passed and failed inspections rise together in those periods, which suggests increased inspection activity rather than a simple one-directional change in rodent conditions."
+            )
+
+    elif dataset == "Income Data 💰":
+        st.title("Income Data Analysis 💰")
+        st.write(
+            "Neighborhood median income varies substantially across Queens, providing useful context for testing whether neighborhood wealth is associated with restaurant outcomes."
+        )
+
+        tab1, tab2, tab3 = st.tabs(
+            ["Median Neighborhood Income", "Median Income by Household Type",
+                "Top 5 vs Bottom 5 Neighborhoods by Income"]
+        )
+
+        with tab1:
+            st.subheader("Median Neighborhood Income")
+            st.image(
+                "figures/income/median_household_income_by_neighborhood_queens2024.png")
+            st.write(
+                "Median household income varies widely across neighborhoods, from around $69,000 in Flushing to over $115,000 in Queens Village."
+            )
+            st.image(
+                "figures/income/median_household_income_over_time_by_neighborhood_queens.png")
+            st.write(
+                "Most neighborhoods show a general upward income trend over time, although some show more year-to-year volatility than others."
+            )
+
+        with tab2:
+            st.subheader("Median Income by Household Type")
+            st.image(
+                "figures/income/median_income_by_household_type_queens2024.png")
+            st.write(
+                "Families have a higher median income than the overall Queens average, while families without children have a higher median than families with children."
+            )
+
+        with tab3:
+            st.subheader("Top 5 vs Bottom 5 Neighborhoods by Income")
+            st.image(
+                "figures/income/top5_vs_bottom5_neighborhoods_by_median_income_queens2024.png")
+            st.write(
+                "The income gap between the highest- and lowest-income neighborhoods is substantial, reinforcing that Queens contains large socioeconomic differences within a single borough."
+            )
+
+    elif dataset == "311 Complaints 📞":
+        st.title("311 Complaints Analysis 📞")
+        st.write(
+            "311 complaints provide another neighborhood-level context variable, although raw counts combine population, activity, and reporting behavior and therefore should not be treated as a clean per-capita risk measure."
+        )
+
+        tab1, tab2 = st.tabs(["Top Complaint Types", "Complaints Monthly"])
+
+        with tab1:
+            st.subheader("Top Complaint Types")
+            st.image("figures/complaints/top_15_complaint_types.png")
+            st.write(
+                "Illegal Parking is the most common complaint type by a wide margin, followed by other parking and noise-related complaints."
+            )
+            st.subheader("Complaints by Agency")
+            st.image("figures/complaints/complaints_by_agency.png")
+            st.write(
+                "NYPD receives the largest volume of 311 complaints, consistent with the dominance of parking, noise, and vehicle-related requests."
+            )
+
+        with tab2:
+            st.subheader("Complaints Monthly")
+            st.image("figures/complaints/total_complaints_per_month.png")
+            st.write(
+                "Total 311 complaints trend upward overall, with a partial-month drop at the end of the study period."
+            )
+            st.image("figures/complaints/top_5_complaint_types_per_month.png")
+            st.write(
+                "Illegal Parking remains the leading complaint category in most months, while HEAT/HOT WATER shows a strong seasonal pattern."
+            )
