@@ -17,9 +17,10 @@ page = st.sidebar.selectbox(
         "Introduction 🗽",
         "1. Restaurant Risk 🍽️",
         "2. Risk Varies Across Queens 🗺️",
-        "3. Do Neighborhood Conditions Explain Risk? 📊",
-        "4. What Predicts Risk? 🔮",
-        "5. Policy & Conclusions 💡",
+        "3. What Do the Maps Show? 📍",
+        "4. Do Neighborhood Conditions Explain Risk? 📊",
+        "5. What Predicts Risk? 🔮",
+        "6. Policy & Conclusions 💡",
         "Appendix: Explore Datasets 🔍",
     ],
 )
@@ -182,10 +183,135 @@ elif page == "2. Risk Varies Across Queens 🗺️":
         "Neighborhoods differ in both restaurant inspection results and the conditions around them. "
         "**Are those differences in neighborhood conditions related to restaurant risk?**"
     )
+# --- Maps Page ---
+elif page == "3. What Do the Maps Show? 📍":
+    st.title("3. What Do the Maps Show? 📍")
+
+    st.write(
+        "The neighborhood rankings show that restaurant inspection outcomes vary across Queens."
+    )
+
+    st.write(
+        "The maps below show the geographic distribution of restaurant inspections, rodent inspection "
+        "failures, and 311 complaints. Looking at these measures together helps us ask whether the "
+        "same areas consistently stand out."
+    )
+
+    st.header("A Visual Check for Geographic Patterns")
+
+    st.info(
+        "**Key takeaway:** The maps show geographic differences in activity, but there is no obvious "
+        "Queens-wide visual pattern that clearly explains restaurant inspection risk."
+    )
+
+    # --- Restaurant Inspections Map ---
+    st.subheader("Restaurant Inspections")
+
+    st.image(
+        "figures/maps/restaurant_inspections.png",
+        use_container_width=True,
+    )
+
+    st.write(
+        "Restaurant inspections are distributed throughout Queens, with higher concentrations in some "
+        "areas than others. However, there is no single obvious geographic pattern that clearly separates "
+        "higher- and lower-risk areas."
+    )
+
+    st.caption(
+        "Inspection volume reflects where restaurants and inspection activity are located. "
+        "A higher number of inspections does not necessarily mean higher food-safety risk."
+    )
+
+    # --- Rodent Failures Map ---
+    st.subheader("Rodent Inspection Failures")
+
+    st.image(
+        "figures/maps/failed_rodent_inspections.png",
+        use_container_width=True,
+    )
+
+    st.write(
+        "Rodent inspection failures also appear across multiple parts of Queens rather than being "
+        "concentrated in one clearly defined area. Some areas show more failures than others, but "
+        "the visual pattern alone is not strong enough to conclude that rodent conditions explain "
+        "restaurant inspection risk."
+    )
+
+    st.caption(
+        "Rodent inspections are not a random sample of properties and can be influenced by complaint "
+        "activity and inspection patterns."
+    )
+
+    # --- 311 Complaints Map ---
+    st.subheader("311 Complaints")
+
+    st.image(
+        "figures/maps/311_complaints.png",
+        use_container_width=True,
+    )
+
+    st.write(
+        "311 complaints are widespread across Queens as well. Some areas have noticeably more complaints, "
+        "but raw complaint counts reflect more than neighborhood conditions. They can also reflect population, "
+        "density, reporting behavior, and the number of people and businesses generating complaints."
+    )
+
+    st.caption(
+        "Because these are raw complaint counts, they should not be interpreted as a direct measure "
+        "of neighborhood risk."
+    )
+
+    # --- Combined Map ---
+    st.subheader("All Three Measures Together")
+
+    st.image(
+        "figures/maps/restaurant_neighborhood_conditions.png",
+        use_container_width=True,
+    )
+
+    st.write(
+        "Putting the three measures together provides another useful check: do restaurant inspections, "
+        "rodent failures, and 311 complaints consistently cluster in the same places?"
+    )
+
+    st.write(
+        "Visually, the answer is not especially clear. There are areas where activity overlaps, but "
+        "there is no obvious Queens-wide pattern in which all three measures consistently line up "
+        "with restaurant inspection outcomes."
+    )
+
+    st.write("---")
+
+    # --- What the Maps Tell Us ---
+    st.header("What the Maps Tell Us — and What They Don't")
+
+    st.write(
+        "The maps provide an important first impression: **geographic differences exist, but they are "
+        "not visually simple.**"
+    )
+
+    st.write(
+        "That matters because it would be easy to look at one map and conclude that a particular area "
+        "is higher risk. The combined maps suggest that the relationship between restaurant outcomes "
+        "and neighborhood conditions is more complicated than that."
+    )
+
+    st.write(
+        "The maps are therefore best treated as a starting point rather than a final answer. "
+        "To understand whether these neighborhood conditions are actually related to restaurant outcomes, "
+        "we need to move beyond visual inspection and test the relationships quantitatively."
+    )
+
+    st.success(
+        "### The Next Question\n\n"
+        "**If the geographic patterns are not obvious from the maps, are neighborhood conditions "
+        "still statistically related to restaurant risk?**"
+    )
 
 # --- Neighborhood Conditions Page ---
-elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
-    st.title("3. Do Neighborhood Conditions Explain Risk? 📊")
+elif page == "4. Do Neighborhood Conditions Explain Risk? 📊":
+    st.title("4. Do Neighborhood Conditions Explain Risk? 📊")
 
     st.write(
         "We now bring neighborhood-level data into the restaurant analysis, focusing on a narrower question: "
@@ -234,8 +360,8 @@ elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
     )
 
 # --- Predictive Model Page ---
-elif page == "4. What Predicts Risk? 🔮":
-    st.title("4. What Predicts Risk? 🔮")
+elif page == "5. What Predicts Risk? 🔮":
+    st.title("5. What Predicts Risk? 🔮")
 
     st.header("The Key Test")
     st.write(
@@ -348,8 +474,8 @@ elif page == "4. What Predicts Risk? 🔮":
     )
 
 # --- Policy & Conclusions Page ---
-elif page == "5. Policy & Conclusions 💡":
-    st.title("5. What Should We Do With the Finding? 💡")
+elif page == "6. Policy & Conclusions 💡":
+    st.title("6. What Should We Do With the Finding? 💡")
 
     st.header("Executive Summary")
     st.write(
