@@ -372,6 +372,11 @@ elif page == "5. What Predicts Risk? 🔮":
     st.info(
         "Once these variables are considered together, the strongest predictive signals are **cuisine type and inspection month**, not neighborhood conditions."
     )
+    st.info(
+        "**Cuisine type is the strongest reported feature group, but this should not be interpreted as meaning that one cuisine is inherently higher risk "
+        "than another.** " "Instead, cuisine type may be capturing differences in the ingredients, food preparation, and food-handling practices associated "
+        "with different types of restaurants."
+    )
 
     st.subheader("Model Performance")
     col1, col2, col3 = st.columns([0.5, 1, 1.5])
@@ -395,9 +400,20 @@ elif page == "5. What Predicts Risk? 🔮":
         "Inspection month is a close second at 32%. Neighborhood identity and the neighborhood-level conditions together are clearly secondary in the model."
     )
 
+    st.write("A more useful interpretation is that cuisine type may serve as a proxy for differences in the "
+             "ingredients and food-handling processes that restaurants use. For example, a restaurant that regularly "
+             "handles raw meat, poultry, or seafood may face different food-safety challenges than an establishment "
+             "that primarily prepares coffee and other lower-risk items."
+             )
+
+    st.write("These differences can involve factors such as temperature control, cross-contamination, storage, "
+             "preparation, and handling procedures. The current model does not directly measure these factors, so "
+             "we cannot determine whether they explain the cuisine-related feature importance."
+             )
+
     st.success(
         "### The main finding\n\n"
-        "**What kind of restaurant it is, and when it gets inspected, matter more for prediction than what neighborhood it is in.**"
+        "**What food the restaurant serves, and when it gets inspected, matter more for prediction than what neighborhood it is in.**"
     )
 
     st.subheader("Why This Changes the Story")
@@ -484,10 +500,23 @@ elif page == "6. Policy & Conclusions 💡":
         "**cuisine type and inspection month are the strongest reported signals** once the variables are considered together."
     )
 
+    st.write("Importantly, the cuisine result should not be interpreted as meaning that cuisine itself determines restaurant inspection outcomes. "
+             "Cuisine type is a broad category that may capture differences in ingredients, food preparation, and food-handling practices."
+             )
+
     st.header("So What?")
     st.write(
         "The practical implication is that food-safety interventions do not need to rely on broad assumptions about neighborhood conditions. "
         "A more useful approach is to investigate restaurant-specific operational risk and the timing of inspections, while treating neighborhood conditions as valuable context rather than the dominant explanation."
+    )
+
+    st.write("For example, restaurants that regularly handle raw meat, poultry, or seafood may encounter different food-safety challenges "
+             "than establishments that primarily prepare coffee or other lower-risk items. These challenges can include temperature control, "
+             "cross-contamination, storage, preparation, and handling procedures."
+    )
+
+    st.write("The next step is therefore to move beyond cuisine labels and examine the underlying food-handling characteristics "
+             "that may explain the model's result."
     )
 
     st.subheader("Policy Recommendation")
