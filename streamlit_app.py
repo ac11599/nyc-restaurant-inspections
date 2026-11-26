@@ -86,9 +86,7 @@ if page == "Introduction 🗽":
         "neighborhood median income, and 311 complaints. Income is available across a longer historical period; "
         "the restaurant, rodent, and 311 analyses focus on 2023–2026."
     )
-    st.write(
-        "The project combines four sources: "
-    )
+    st.write("The project combines four sources: ")
     st.write(
         "* [Restaurant Inspection Data](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/about_data)\n"
         "* [Rodent Inspection Data](https://data.cityofnewyork.us/Health/Rodent-Inspection/p937-wjvj/about_data)\n"
@@ -182,8 +180,7 @@ elif page == "2. Risk Varies Across Queens 🗺️":
 
     st.subheader("Explore a Neighborhood")
     merged = pd.read_csv("data/merged_neighborhood_summary.csv")
-    selected = st.selectbox("Choose a neighborhood:",
-                            sorted(merged["neighborhood"]))
+    selected = st.selectbox("Choose a neighborhood:", sorted(merged["neighborhood"]))
     row = merged[merged["neighborhood"] == selected].iloc[0]
 
     col1, col2, col3, col4 = st.columns(4)
@@ -191,7 +188,11 @@ elif page == "2. Risk Varies Across Queens 🗺️":
     col2.metric("A-Grade Rate", f"{row['pct_grade_a'] * 100:.1f}%")
     col3.metric("Rodent Fail Rate", f"{row['rodent_fail_rate'] * 100:.1f}%")
     # col4.metric("311 Complaints", f"{row['complaint_count']:,}")
-    col4.metric("311 per 1k Residents", f"{row['complaints_per_1k_per_year']:,.1f}", help="Annualized 311 complaints per 1,000 residents, 2023-2026")
+    col4.metric(
+        "311 per 1k Residents",
+        f"{row['complaints_per_1k_per_year']:,.1f}",
+        help="Annualized 311 complaints per 1,000 residents, 2023-2026",
+    )
 
     st.write("### The Next Question")
     st.success(
@@ -396,7 +397,8 @@ elif page == "4. What Predicts Risk? 🔮":
     )
     st.info(
         "**Cuisine type is the strongest reported feature group, but this should not be interpreted as meaning that one cuisine is inherently higher risk "
-        "than another.** " "Instead, cuisine type may be capturing differences in the ingredients, food preparation, and food-handling practices associated "
+        "than another.** "
+        "Instead, cuisine type may be capturing differences in the ingredients, food preparation, and food-handling practices associated "
         "with different types of restaurants."
     )
 
@@ -422,16 +424,18 @@ elif page == "4. What Predicts Risk? 🔮":
         "Inspection month is a close second at 32%. Neighborhood identity and the neighborhood-level conditions together are clearly secondary in the model."
     )
 
-    st.write("A more useful interpretation is that cuisine type may serve as a proxy for differences in the "
-             "ingredients and food-handling processes that restaurants use. For example, a restaurant that regularly "
-             "handles raw meat, poultry, or seafood may face different food-safety challenges than an establishment "
-             "that primarily prepares coffee and other lower-risk items."
-             )
+    st.write(
+        "A more useful interpretation is that cuisine type may serve as a proxy for differences in the "
+        "ingredients and food-handling processes that restaurants use. For example, a restaurant that regularly "
+        "handles raw meat, poultry, or seafood may face different food-safety challenges than an establishment "
+        "that primarily prepares coffee and other lower-risk items."
+    )
 
-    st.write("These differences can involve factors such as temperature control, cross-contamination, storage, "
-             "preparation, and handling procedures. The current model does not directly measure these factors, so "
-             "we cannot determine whether they explain the cuisine-related feature importance."
-             )
+    st.write(
+        "These differences can involve factors such as temperature control, cross-contamination, storage, "
+        "preparation, and handling procedures. The current model does not directly measure these factors, so "
+        "we cannot determine whether they explain the cuisine-related feature importance."
+    )
 
     st.success(
         "### The main finding\n\n"
@@ -445,7 +449,9 @@ elif page == "4. What Predicts Risk? 🔮":
     )
 
     st.subheader("Interactive Risk Prediction")
-    st.write("Choose a cuisine type, neighborhood, and inspection month to see the model's estimated inspection score and grade.")
+    st.write(
+        "Choose a cuisine type, neighborhood, and inspection month to see the model's estimated inspection score and grade."
+    )
 
     # Load model resources only on this page.
     model = joblib.load("model/restaurant_score_model.pkl")
@@ -464,8 +470,9 @@ elif page == "4. What Predicts Risk? 🔮":
     )
 
     if st.button("Predict Inspection Score"):
-        stats_row = neighborhood_stats[neighborhood_stats["neighborhood"]
-                                       == neighborhood].iloc[0]
+        stats_row = neighborhood_stats[
+            neighborhood_stats["neighborhood"] == neighborhood
+        ].iloc[0]
 
         input_row = pd.DataFrame(0, index=[0], columns=model_columns)
         input_row["month_num"] = month
@@ -524,9 +531,10 @@ elif page == "5. Policy & Conclusions 💡":
         "**cuisine type and inspection month are the strongest reported signals** once the variables are considered together."
     )
 
-    st.write("Importantly, the cuisine result should not be interpreted as meaning that cuisine itself determines restaurant inspection outcomes. "
-             "Cuisine type is a broad category that may capture differences in ingredients, food preparation, and food-handling practices."
-             )
+    st.write(
+        "Importantly, the cuisine result should not be interpreted as meaning that cuisine itself determines restaurant inspection outcomes. "
+        "Cuisine type is a broad category that may capture differences in ingredients, food preparation, and food-handling practices."
+    )
 
     st.header("So What?")
     st.write(
@@ -534,13 +542,15 @@ elif page == "5. Policy & Conclusions 💡":
         "A more useful approach is to investigate restaurant-specific operational risk and the timing of inspections, while treating neighborhood conditions as valuable context rather than the dominant explanation."
     )
 
-    st.write("For example, restaurants that regularly handle raw meat, poultry, or seafood may encounter different food-safety challenges "
-             "than establishments that primarily prepare coffee or other lower-risk items. These challenges can include temperature control, "
-             "cross-contamination, storage, preparation, and handling procedures."
+    st.write(
+        "For example, restaurants that regularly handle raw meat, poultry, or seafood may encounter different food-safety challenges "
+        "than establishments that primarily prepare coffee or other lower-risk items. These challenges can include temperature control, "
+        "cross-contamination, storage, preparation, and handling procedures."
     )
 
-    st.write("The next step is therefore to move beyond cuisine labels and examine the underlying food-handling characteristics "
-             "that may explain the model's result."
+    st.write(
+        "The next step is therefore to move beyond cuisine labels and examine the underlying food-handling characteristics "
+        "that may explain the model's result."
     )
 
     st.subheader("Policy Recommendation")
@@ -613,7 +623,8 @@ elif page == "Appendix A: Explore Datasets 🔍":
         st.header("Inspection Volume and Cuisine Context")
 
         tab1, tab2 = st.tabs(
-            ["Inspection Count Monthly", "Top Cuisines by Inspection Count"])
+            ["Inspection Count Monthly", "Top Cuisines by Inspection Count"]
+        )
 
         with tab1:
             st.subheader("Inspection Count Monthly")
@@ -626,7 +637,8 @@ elif page == "Appendix A: Explore Datasets 🔍":
         with tab2:
             st.subheader("Top Cuisines by Inspection Count")
             st.image(
-                "figures/restaurant/top_20_cuisine_types_by_number_of_inspections.png")
+                "figures/restaurant/top_20_cuisine_types_by_number_of_inspections.png"
+            )
             st.write(
                 "Chinese restaurants account for the largest number of inspections, followed by American and Latin American. "
                 "Inspection counts are primarily useful here as a measure of restaurant prevalence, not as a direct measure of risk."
@@ -640,7 +652,8 @@ elif page == "Appendix A: Explore Datasets 🔍":
         )
 
         tab1, tab2 = st.tabs(
-            ["Rodent Inspection Results", "Rodent Inspections Monthly"])
+            ["Rodent Inspection Results", "Rodent Inspections Monthly"]
+        )
 
         with tab1:
             st.subheader("Rodent Inspection Results")
@@ -654,7 +667,8 @@ elif page == "Appendix A: Explore Datasets 🔍":
             st.subheader("Rodent Inspections Monthly")
             st.image("figures/rodent/failed_rodent_inspections_per_month.png")
             st.write(
-                "Failed rodent inspections are generally in the 300–600 range, with notable spikes around September 2024 and August 2025.")
+                "Failed rodent inspections are generally in the 300–600 range, with notable spikes around September 2024 and August 2025."
+            )
             st.image("figures/rodent/pass_vs_fail_inspections_per_month.png")
             st.write(
                 "Passed and failed inspections rise together in those periods, which suggests increased inspection activity rather than a simple one-directional change in rodent conditions."
@@ -667,27 +681,31 @@ elif page == "Appendix A: Explore Datasets 🔍":
         )
 
         tab1, tab2, tab3 = st.tabs(
-            ["Median Neighborhood Income", "Median Income by Household Type",
-                "Top 5 vs Bottom 5 Neighborhoods by Income"]
+            [
+                "Median Neighborhood Income",
+                "Median Income by Household Type",
+                "Top 5 vs Bottom 5 Neighborhoods by Income",
+            ]
         )
 
         with tab1:
             st.subheader("Median Neighborhood Income")
             st.image(
-                "figures/income/median_household_income_by_neighborhood_queens2024.png")
+                "figures/income/median_household_income_by_neighborhood_queens2024.png"
+            )
             st.write(
                 "Median household income varies widely across neighborhoods, from around $69,000 in Flushing to over $115,000 in Queens Village."
             )
             st.image(
-                "figures/income/median_household_income_over_time_by_neighborhood_queens.png")
+                "figures/income/median_household_income_over_time_by_neighborhood_queens.png"
+            )
             st.write(
                 "Most neighborhoods show a general upward income trend over time, although some show more year-to-year volatility than others."
             )
 
         with tab2:
             st.subheader("Median Income by Household Type")
-            st.image(
-                "figures/income/median_income_by_household_type_queens2024.png")
+            st.image("figures/income/median_income_by_household_type_queens2024.png")
             st.write(
                 "Families have a higher median income than the overall Queens average, while families without children have a higher median than families with children."
             )
@@ -695,7 +713,8 @@ elif page == "Appendix A: Explore Datasets 🔍":
         with tab3:
             st.subheader("Top 5 vs Bottom 5 Neighborhoods by Income")
             st.image(
-                "figures/income/top5_vs_bottom5_neighborhoods_by_median_income_queens2024.png")
+                "figures/income/top5_vs_bottom5_neighborhoods_by_median_income_queens2024.png"
+            )
             st.write(
                 "The income gap between the highest- and lowest-income neighborhoods is substantial, reinforcing that Queens contains large socioeconomic differences within a single borough."
             )
