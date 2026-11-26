@@ -626,7 +626,7 @@ elif page == "Appendix A: Explore Datasets 🔍":
         with tab2:
             st.subheader("Top Cuisines by Inspection Count")
             st.image(
-                "figures/restaurant/top_15_cuisine_types_by_number_of_inspections.png")
+                "figures/restaurant/top_20_cuisine_types_by_number_of_inspections.png")
             st.write(
                 "Chinese restaurants account for the largest number of inspections, followed by American and Latin American. "
                 "Inspection counts are primarily useful here as a measure of restaurant prevalence, not as a direct measure of risk."
