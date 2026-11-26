@@ -190,7 +190,8 @@ elif page == "2. Risk Varies Across Queens 🗺️":
     col1.metric("Median Income", f"${row['median_income']:,.0f}")
     col2.metric("A-Grade Rate", f"{row['pct_grade_a'] * 100:.1f}%")
     col3.metric("Rodent Fail Rate", f"{row['rodent_fail_rate'] * 100:.1f}%")
-    col4.metric("311 Complaints", f"{row['complaint_count']:,}")
+    # col4.metric("311 Complaints", f"{row['complaint_count']:,}")
+    col4.metric("311 per 1k Residents", f"{row['complaints_per_1k_per_year']:,.1f}", help="Annualized 311 complaints per 1,000 residents, 2023-2026")
 
     st.write("### The Next Question")
     st.success(
