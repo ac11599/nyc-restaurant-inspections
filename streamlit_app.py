@@ -11,17 +11,31 @@ st.set_page_config(
 )
 
 st.sidebar.header("NYC Restaurant Inspections Dashboard 🌐")
+# page = st.sidebar.selectbox(
+#     "Select Page",
+#     [
+#         "Introduction 🗽",
+#         "1. Restaurant Risk 🍽️",
+#         "2. Risk Varies Across Queens 🗺️",
+#         "3. What Do the Maps Show? 📍",
+#         "4. Do Neighborhood Conditions Explain Risk? 📊",
+#         "5. What Predicts Risk? 🔮",
+#         "6. Policy & Conclusions 💡",
+#         "Appendix: Explore Datasets 🔍",
+#     ],
+# )
+
 page = st.sidebar.selectbox(
     "Select Page",
     [
         "Introduction 🗽",
         "1. Restaurant Risk 🍽️",
         "2. Risk Varies Across Queens 🗺️",
-        "3. What Do the Maps Show? 📍",
-        "4. Do Neighborhood Conditions Explain Risk? 📊",
-        "5. What Predicts Risk? 🔮",
-        "6. Policy & Conclusions 💡",
-        "Appendix: Explore Datasets 🔍",
+        "3. Do Neighborhood Conditions Explain Risk? 📊",
+        "4. What Predicts Risk? 🔮",
+        "5. Policy & Conclusions 💡",
+        "Appendix A: Explore Datasets 🔍",
+        "Appendix B: Maps 📍",
     ],
 )
 
@@ -183,9 +197,12 @@ elif page == "2. Risk Varies Across Queens 🗺️":
         "Neighborhoods differ in both restaurant inspection results and the conditions around them. "
         "**Are those differences in neighborhood conditions related to restaurant risk?**"
     )
-# --- Maps Page ---
-elif page == "3. What Do the Maps Show? 📍":
-    st.title("3. What Do the Maps Show? 📍")
+
+# --- Maps Page (temporarily moved to Appendix) ---
+# elif page == "3. What Do the Maps Show? 📍":
+#     st.title("3. What Do the Maps Show? 📍")
+elif page == "Appendix B: Maps 📍":
+    st.title("Appendix B: What Do the Maps Show? 📍")
 
     st.write(
         "The neighborhood rankings show that restaurant inspection outcomes vary across Queens."
@@ -310,8 +327,10 @@ elif page == "3. What Do the Maps Show? 📍":
     )
 
 # --- Neighborhood Conditions Page ---
-elif page == "4. Do Neighborhood Conditions Explain Risk? 📊":
-    st.title("4. Do Neighborhood Conditions Explain Risk? 📊")
+# elif page == "4. Do Neighborhood Conditions Explain Risk? 📊":
+#     st.title("4. Do Neighborhood Conditions Explain Risk? 📊")
+elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
+    st.title("3. Do Neighborhood Conditions Explain Risk? 📊")
 
     st.write(
         "We now bring neighborhood-level data into the restaurant analysis, focusing on a narrower question: "
@@ -360,8 +379,10 @@ elif page == "4. Do Neighborhood Conditions Explain Risk? 📊":
     )
 
 # --- Predictive Model Page ---
-elif page == "5. What Predicts Risk? 🔮":
-    st.title("5. What Predicts Risk? 🔮")
+# elif page == "5. What Predicts Risk? 🔮":
+#     st.title("5. What Predicts Risk? 🔮")
+elif page == "4. What Predicts Risk? 🔮":
+    st.title("4. What Predicts Risk? 🔮")
 
     st.header("The Key Test")
     st.write(
@@ -490,8 +511,10 @@ elif page == "5. What Predicts Risk? 🔮":
     )
 
 # --- Policy & Conclusions Page ---
-elif page == "6. Policy & Conclusions 💡":
-    st.title("6. What Should We Do With the Finding? 💡")
+# elif page == "6. Policy & Conclusions 💡":
+#     st.title("6. What Should We Do With the Finding? 💡")
+elif page == "5. Policy & Conclusions 💡":
+    st.title("5. What Should We Do With the Finding? 💡")
 
     st.header("Executive Summary")
     st.write(
@@ -564,8 +587,11 @@ elif page == "6. Policy & Conclusions 💡":
     )
 
 # --- Appendix / Detailed Dataset Exploration ---
-elif page == "Appendix: Explore Datasets 🔍":
-    st.title("Appendix: Explore Datasets 🔍")
+# elif page == "Appendix: Explore Datasets 🔍":
+#     st.title("Appendix: Explore Datasets 🔍")
+elif page == "Appendix A: Explore Datasets 🔍":
+    st.title("Appendix A: Explore Datasets 🔍")
+
     st.write(
         "This section preserves the detailed exploratory analysis from the original dashboard. "
         "It is intentionally separated from the main story so that the presentation can stay focused while the underlying evidence remains available."
