@@ -181,7 +181,7 @@ elif page == "2. Risk Varies Across Queens 🗺️":
     )
 
     st.subheader("Explore a Neighborhood")
-    merged = pd.read_csv("merged_neighborhood_summary.csv")
+    merged = pd.read_csv("data/merged_neighborhood_summary.csv")
     selected = st.selectbox("Choose a neighborhood:",
                             sorted(merged["neighborhood"]))
     row = merged[merged["neighborhood"] == selected].iloc[0]
