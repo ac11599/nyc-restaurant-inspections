@@ -74,18 +74,14 @@ if page == "Introduction 🗽":
     st.write(
         "The analysis first looks at restaurant inspection risk, then examines how risk differs "
         "across neighborhoods and whether neighborhood conditions are related to those differences. "
-        "Finally, it looks at which factors are the strongest predictors of inspection scores."
+        "Finally, it tests how well restaurant and neighborhood characteristics can predict "
+        "the score of an individual inspection."
     )
 
     st.header("Data")
     col1, col2 = st.columns(2)
     col1.metric("Study Area", "Queens")
     col2.metric("Timeframe", "2023–2026")
-    st.write(
-        "The project combines four sources: restaurant inspection results, rodent inspection results, "
-        "neighborhood median income, and 311 complaints. Income is available across a longer historical period; "
-        "the restaurant, rodent, and 311 analyses focus on 2023–2026."
-    )
     st.write("The project combines four sources: ")
     st.write(
         "* [Restaurant Inspection Data](https://data.cityofnewyork.us/Health/DOHMH-New-York-City-Restaurant-Inspection-Results/43nn-pn8j/about_data)\n"
@@ -147,7 +143,6 @@ elif page == "1. Restaurant Risk 🍽️":
     st.subheader("A Useful Context, Not a Main Finding")
     st.write(
         "Inspection volume has increased over the study period, and the number of inspections varies throughout the year. "
-        "These patterns matter because the timing and frequency of inspections can affect what the model learns. "
         "The detailed inspection-volume charts are in the appendix."
     )
 
@@ -169,8 +164,8 @@ elif page == "2. Risk Varies Across Queens 🗺️":
     st.image("figures/integrated/restaurant_grade_rate_neighborhoods_ranked.png")
 
     st.info(
-        "**The spread is substantial:** the neighborhood ranking runs from roughly **53% A grades in Flushing** "
-        "to roughly **77% in Howard Beach**."
+        "**The spread is substantial:** the neighborhood ranking runs from roughly **71% A grades in Flushing** "
+        "to roughly **86% in Howard Beach**."
     )
 
     st.write(
@@ -187,7 +182,6 @@ elif page == "2. Risk Varies Across Queens 🗺️":
     col1.metric("Median Income", f"${row['median_income']:,.0f}")
     col2.metric("A-Grade Rate", f"{row['pct_grade_a'] * 100:.1f}%")
     col3.metric("Rodent Fail Rate", f"{row['rodent_fail_rate'] * 100:.1f}%")
-    # col4.metric("311 Complaints", f"{row['complaint_count']:,}")
     col4.metric(
         "311 per 1k Residents",
         f"{row['complaints_per_1k_per_year']:,.1f}",
@@ -343,14 +337,18 @@ elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
     st.image("figures/integrated/correlation_heatmap.png")
 
     col1, col2, col3 = st.columns(3)
-    col1.metric("Income vs. A-grade rate", "+0.21")
+    col1.metric("Income vs. A-grade rate", "+0.25")
     col2.metric("Rodent failures vs. A-grade rate", "−0.58")
-    col3.metric("311 vs. A-grade rate", "-0.41")
+    col3.metric("311 vs. A-grade rate", "-0.21")
 
     st.write(
         "Rodent inspection failure rate has the strongest neighborhood-level relationship with restaurant A-grade rate. "
-        "Income is much weaker than we might expect from a simple ‘wealthier neighborhood = safer restaurant’ story. "
-        "311 complaint volume sits between the two, although raw complaint counts are not normalized by population or restaurant density."
+        "Income and 311 complaints per resident both show weaker relationships. Income is much weaker than we might "
+        "expect from a simple ‘wealthier neighborhood = safer restaurant’ story."
+    )
+
+    st.caption(
+        "These correlations are based on only 14 neighborhoods, so they are suggestive rather than conclusive."
     )
 
     st.subheader("Rodent Conditions Show the Clearest Relationship")
@@ -368,17 +366,21 @@ elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
         "perform very well, while Queens Village — among the highest-income neighborhoods — sits closer to the middle of the restaurant ranking."
     )
 
-    st.subheader("311 Complaint Volume Adds Context")
+    st.subheader("311 Complaint Rate")
     st.image("figures/integrated/complaints_vs_restaurant_grade_rate.png")
     st.write(
-        "311 complaint volume is moderately related to restaurant grades, but this measure should be treated as directional "
-        "because complaint counts are not normalized for population or restaurant density."
+        "Neighborhoods with more 311 complaints per 1,000 residents tend to have slightly lower A-grade rates, "
+        "but the relationship is weak. Most 311 complaints are about parking and noise, so this is only a rough "
+        "measure of neighborhood conditions."
     )
 
     st.write("### But there is a catch")
     st.success(
-        "These are neighborhood-level correlations. They tell us what moves together — **not which variables are most important.**"
+        "These are neighborhood-level correlations. They tell us what moves together, "
+        "**not which variables are most important or what causes what.** "
+        "They also describe neighborhood averages, which may not hold for any individual restaurant."
     )
+    
 
 # --- Predictive Model Page ---
 # elif page == "5. What Predicts Risk? 🔮":
@@ -386,67 +388,128 @@ elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
 elif page == "4. What Predicts Risk? 🔮":
     st.title("4. What Predicts Risk? 🔮")
 
+    # st.header("The Key Test")
+    # st.write(
+    #     "The neighborhood analysis gives us an important clue, but it does not tell us whether neighborhood conditions are the strongest signals. "
+    #     "To test that, we built a model using cuisine type, neighborhood, inspection month, median income, rodent failure rate, and 311 complaint volume."
+    # )
+
+    # st.info(
+    #     "Once these variables are considered together, the strongest predictive signals are **cuisine type and inspection month**, not neighborhood conditions."
+    # )
+    # st.info(
+    #     "**Cuisine type is the strongest reported feature group, but this should not be interpreted as meaning that one cuisine is inherently higher risk "
+    #     "than another.** "
+    #     "Instead, cuisine type may be capturing differences in the ingredients, food preparation, and food-handling practices associated "
+    #     "with different types of restaurants."
+    # )
+
+    # st.subheader("Model Performance")
+    # col1, col2, col3 = st.columns([0.5, 1, 1.5])
+    # col1.metric("R²", "0.29")
+    # col2.metric("RMSE", "~15.9 points")
+    # col3.metric("Outcome", "Inspection score")
+
+    # st.write(
+    #     "The model explains about 29% of the variation in inspection scores. That is a modest result: most of the variation in any individual inspection remains unexplained, "
+    #     "which is consistent with the fact that inspection outcomes depend on day-of conditions and other restaurant-level factors that are not present in this dataset."
+    # )
+
+    # st.subheader("What Matters Most for Prediction?")
+    # col1, col2, col3 = st.columns(3)
+    # col1.metric("Cuisine type", "38%", delta="Strongest signal")
+    # col2.metric("Inspection month", "32%", delta="Second strongest")
+    # col3.metric("Neighborhood + conditions", "<25%", delta="Secondary")
+
+    # st.write(
+    #     "Cuisine type is the single strongest reported feature group, accounting for 38% of total importance. "
+    #     "Inspection month is a close second at 32%. Neighborhood identity and the neighborhood-level conditions together are clearly secondary in the model."
+    # )
+
+    # st.write(
+    #     "A more useful interpretation is that cuisine type may serve as a proxy for differences in the "
+    #     "ingredients and food-handling processes that restaurants use. For example, a restaurant that regularly "
+    #     "handles raw meat, poultry, or seafood may face different food-safety challenges than an establishment "
+    #     "that primarily prepares coffee and other lower-risk items."
+    # )
+
+    # st.write(
+    #     "These differences can involve factors such as temperature control, cross-contamination, storage, "
+    #     "preparation, and handling procedures. The current model does not directly measure these factors, so "
+    #     "we cannot determine whether they explain the cuisine-related feature importance."
+    # )
+
+    # st.success(
+    #     "### The main finding\n\n"
+    #     "**What food the restaurant serves, and when it gets inspected, matter more for prediction than what neighborhood it is in.**"
+    # )
+
+    # st.subheader("Why This Changes the Story")
+    # st.write(
+    #     "The earlier correlations could make neighborhood conditions look like the main explanation for restaurant risk. "
+    #     "The model adds an important layer of context: neighborhood conditions still carry signal, but they are not the dominant predictive story after accounting for restaurant characteristics and inspection timing."
+    # )
+
+    # Update these from the notebook's final results table
+    GB_R2, GB_RMSE, GB_MAE = 0.046, 14.71, 10.87
+    MEAN_RMSE, MEDIAN_MAE = 15.08, 10.16
+
     st.header("The Key Test")
     st.write(
-        "The neighborhood analysis gives us an important clue, but it does not tell us whether neighborhood conditions are the strongest signals. "
-        "To test that, we built a model using cuisine type, neighborhood, inspection month, median income, rodent failure rate, and 311 complaint volume."
+        "The neighborhood analysis shows patterns, but it doesn't tell us whether they help predict "
+        "an individual restaurant's inspection score. To test that, we built a model using cuisine type, "
+        "neighborhood, inspection month, median income, rodent failure rate, and 311 complaints per resident. "
+        "We tested it only on restaurants it had never seen."
     )
 
     st.info(
-        "Once these variables are considered together, the strongest predictive signals are **cuisine type and inspection month**, not neighborhood conditions."
-    )
-    st.info(
-        "**Cuisine type is the strongest reported feature group, but this should not be interpreted as meaning that one cuisine is inherently higher risk "
-        "than another.** "
-        "Instead, cuisine type may be capturing differences in the ingredients, food preparation, and food-handling practices associated "
-        "with different types of restaurants."
+        "**These factors explain very little about any single inspection.** The model barely beats "
+        "a simple average guess, so none of these factors can reliably identify which restaurants will score poorly."
     )
 
     st.subheader("Model Performance")
-    col1, col2, col3 = st.columns([0.5, 1, 1.5])
-    col1.metric("R²", "0.29")
-    col2.metric("RMSE", "~15.9 points")
-    col3.metric("Outcome", "Inspection score")
-
-    st.write(
-        "The model explains about 29% of the variation in inspection scores. That is a modest result: most of the variation in any individual inspection remains unexplained, "
-        "which is consistent with the fact that inspection outcomes depend on day-of conditions and other restaurant-level factors that are not present in this dataset."
-    )
-
-    st.subheader("What Matters Most for Prediction?")
     col1, col2, col3 = st.columns(3)
-    col1.metric("Cuisine type", "38%", delta="Strongest signal")
-    col2.metric("Inspection month", "32%", delta="Second strongest")
-    col3.metric("Neighborhood + conditions", "<25%", delta="Secondary")
+    col1.metric("R²", f"{GB_R2:.3f}")
+    col2.metric("RMSE", f"{GB_RMSE:.1f} points")
+    col3.metric("Guessing the average", f"{MEAN_RMSE:.1f} points")
 
     st.write(
-        "Cuisine type is the single strongest reported feature group, accounting for 38% of total importance. "
-        "Inspection month is a close second at 32%. Neighborhood identity and the neighborhood-level conditions together are clearly secondary in the model."
+        f"The model explains under 5% of the variation in inspection scores. Its typical error "
+        f"(RMSE {GB_RMSE:.1f} points) is only about 2% better than always guessing the average score "
+        f"({MEAN_RMSE:.1f}). On typical error (MAE), it does no better than guessing the median score "
+        f"({GB_MAE:.1f} vs. {MEDIAN_MAE:.1f}). Inspection outcomes depend mostly on things not in this data, "
+        "such as the restaurant's own practices and conditions on the day of the inspection."
     )
 
+    st.subheader("Which Information Helped Most?")
     st.write(
-        "A more useful interpretation is that cuisine type may serve as a proxy for differences in the "
-        "ingredients and food-handling processes that restaurants use. For example, a restaurant that regularly "
-        "handles raw meat, poultry, or seafood may face different food-safety challenges than an establishment "
-        "that primarily prepares coffee and other lower-risk items."
+        "We scrambled each type of information and measured how much worse the predictions got."
     )
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Cuisine type", "+0.6 points")
+    col2.metric("All neighborhood info", "+0.1 points")
+    col3.metric("Inspection month", "+0.03 points")
 
     st.write(
-        "These differences can involve factors such as temperature control, cross-contamination, storage, "
-        "preparation, and handling procedures. The current model does not directly measure these factors, so "
-        "we cannot determine whether they explain the cuisine-related feature importance."
+        "Cuisine was the most useful clue, but even it improved predictions only slightly. "
+        "Neighborhood and month added almost nothing. This should not be read as one cuisine being "
+        "inherently riskier than another; cuisine may reflect differences in food preparation and handling."
     )
 
     st.success(
         "### The main finding\n\n"
-        "**What food the restaurant serves, and when it gets inspected, matter more for prediction than what neighborhood it is in.**"
+        "**Neighborhood patterns exist, but neither neighborhood, cuisine, nor timing can predict which individual restaurants will do poorly.**"
     )
 
     st.subheader("Why This Changes the Story")
     st.write(
-        "The earlier correlations could make neighborhood conditions look like the main explanation for restaurant risk. "
-        "The model adds an important layer of context: neighborhood conditions still carry signal, but they are not the dominant predictive story after accounting for restaurant characteristics and inspection timing."
+        "The earlier correlations show that neighborhoods with more rodent failures tend to have lower A-grade rates. "
+        "But those are averages across many restaurants. Within any neighborhood, individual inspection scores vary widely, "
+        "so neighborhood is a poor guide to any one restaurant."
     )
+
+
+
 
     st.subheader("Interactive Risk Prediction")
     st.write(
@@ -458,7 +521,7 @@ elif page == "4. What Predicts Risk? 🔮":
     model_columns = joblib.load("model/model_columns.pkl")
     cuisine_list = joblib.load("model/cuisine_list.pkl")
     neighborhood_list = joblib.load("model/neighborhood_list.pkl")
-    neighborhood_stats = pd.read_csv("merged_neighborhood_summary.csv")
+    neighborhood_stats = pd.read_csv("data/merged_neighborhood_summary.csv")
 
     col1, col2, col3 = st.columns(3)
     cuisine = col1.selectbox("Cuisine Type", cuisine_list)
@@ -478,7 +541,7 @@ elif page == "4. What Predicts Risk? 🔮":
         input_row["month_num"] = month
         input_row["median_income"] = stats_row["median_income"]
         input_row["rodent_fail_rate"] = stats_row["rodent_fail_rate"]
-        input_row["complaint_count"] = stats_row["complaint_count"]
+        input_row["complaints_per_1k_per_year"] = stats_row["complaints_per_1k_per_year"]
 
         cuisine_col = f"cuisine_description_{cuisine}"
         neighborhood_col = f"neighborhood_{neighborhood}"
@@ -502,8 +565,8 @@ elif page == "4. What Predicts Risk? 🔮":
         col2.metric("Predicted Grade", predicted_grade)
 
         st.caption(
-            "Predictions are estimates based on historical patterns and may not reflect an individual restaurant's actual outcome. "
-            "Model performance: RMSE ~15.9 points; R² = 0.29."
+            f"Predictions cluster near the average score because these factors explain little. "
+            f"Typical error is about {GB_RMSE:.0f} points (R² = {GB_R2:.3f})."
         )
 
     st.subheader("Correlation, Not Causation")
@@ -526,51 +589,32 @@ elif page == "5. Policy & Conclusions 💡":
 
     st.header("Executive Summary")
     st.write(
-        "Restaurant inspection risk in Queens varies meaningfully across neighborhoods, but the evidence does not support a simple neighborhood-based explanation. "
-        "Neighborhood conditions — especially rodent inspection failure rates — are associated with restaurant outcomes, yet the predictive model shows that "
-        "**cuisine type and inspection month are the strongest reported signals** once the variables are considered together."
-    )
-
-    st.write(
-        "Importantly, the cuisine result should not be interpreted as meaning that cuisine itself determines restaurant inspection outcomes. "
-        "Cuisine type is a broad category that may capture differences in ingredients, food preparation, and food-handling practices."
+        "Restaurant inspection results in Queens vary across neighborhoods, and neighborhoods with higher rodent "
+        "inspection failure rates tend to have lower A-grade rates. But neighborhood, cuisine, and inspection month "
+        "together explain under 5% of the variation in individual inspection scores."
     )
 
     st.header("So What?")
     st.write(
-        "The practical implication is that food-safety interventions do not need to rely on broad assumptions about neighborhood conditions. "
-        "A more useful approach is to investigate restaurant-specific operational risk and the timing of inspections, while treating neighborhood conditions as valuable context rather than the dominant explanation."
-    )
-
-    st.write(
-        "For example, restaurants that regularly handle raw meat, poultry, or seafood may encounter different food-safety challenges "
-        "than establishments that primarily prepare coffee or other lower-risk items. These challenges can include temperature control, "
-        "cross-contamination, storage, preparation, and handling procedures."
-    )
-
-    st.write(
-        "The next step is therefore to move beyond cuisine labels and examine the underlying food-handling characteristics "
-        "that may explain the model's result."
+        "Neighborhood-level patterns are real, but they are too weak to identify which individual restaurants "
+        "are higher risk. Targeting inspections by neighborhood, cuisine, or time of year alone would "
+        "miss most of the variation."
     )
 
     st.subheader("Policy Recommendation")
     st.write(
-        "**Recommendation:** Use cuisine and seasonality to guide further risk analysis, but avoid treating specific cuisines or neighborhoods as inherently higher risk."
+        "**Recommendation:** Treat neighborhood conditions as context, and focus risk targeting on "
+        "restaurant-level information."
     )
-
-    st.write("**1. Test food-handling risk categories.**")
+    st.write("**1. Use restaurant history.**")
     st.write(
-        "Cuisine is the strongest predictor in the current model, but that does not mean certain cuisines should be "
-        "targeted. Instead, we should look at specific food-handling practices, such as preparing raw meat, poultry, "
-        "or seafood on-site, to see what may be driving the pattern."
+        "A restaurant's own past scores and violation types are not in this analysis, but are the most "
+        "promising next signals to test."
     )
-
-    st.write("**2. Test inspection timing as a risk signal.**")
+    st.write("**2. Look at specific food-handling practices.**")
     st.write(
-        "Inspection month is the second strongest predictive signal "
-        "in the model, accounting for 32% of the reported importance. Possible reasons include changes in restaurant activity, "
-        "staffing, weather conditions, or inspection scheduling throughout the year. Further analysis could help "
-        "determine which of these factors may be driving the seasonal pattern before using it to inform inspection planning."
+        "Cuisine was the most useful factor in the model, though only slightly. Examining practices such as "
+        "raw meat handling and temperature control would be more informative than cuisine labels."
     )
 
     st.write("**Why this approach is preferable:**")
@@ -580,21 +624,22 @@ elif page == "5. Policy & Conclusions 💡":
 
     st.subheader("Limitations")
     st.write(
-        "This analysis covers Queens restaurant inspections from 2023–2026, so the findings should not automatically be generalized to the other four boroughs. "
-        "The model explains 29% of score variation, meaning most of the variation in an individual inspection remains unexplained. "
-        "311 complaint counts are not normalized by population or restaurant density, so some neighborhood comparisons are directional. "
+        "This analysis covers Queens restaurant inspections from 2023–2026, so the findings should not automatically be "
+        "generalized to other boroughs. The neighborhood correlations rest on only 14 neighborhoods. "
+        "The model explains under 5% of score variation, so most variation in an individual inspection remains unexplained. "
+        "Some records could not be matched to a neighborhood by ZIP code and were left out. "
         "Finally, the analysis is observational and cannot establish causality."
     )
 
     st.header("Conclusion")
     st.write(
-        "Returning to the original question — what explains differences in restaurant inspection risk across neighborhoods in New York City? — the answer is more nuanced than a purely neighborhood-based story. "
-        "Neighborhood conditions do correlate with restaurant outcomes, with rodent failure rate showing the clearest relationship, but those neighborhood-level signals become secondary once restaurant characteristics and inspection timing are considered."
+        "Returning to the original question, what explains differences in restaurant inspection risk across Queens neighborhoods? "
+        "Neighborhood conditions, especially rodent failure rates, line up with differences in average A-grade rates. "
+        "But those patterns don't carry down to individual inspections, where cuisine, neighborhood, and timing explain very little."
     )
-
     st.success(
-        "**Bottom line:** The strongest predictive signals in this analysis are **what kind of restaurant it is and when the inspection occurs**. "
-        "That points toward targeted, operationally grounded risk strategies rather than income- or neighborhood-based assumptions."
+        "**Bottom line:** Neighborhood patterns exist, but predicting which individual restaurants are higher risk "
+        "requires restaurant-level information that this data doesn't include."
     )
 
 # --- Appendix / Detailed Dataset Exploration ---
