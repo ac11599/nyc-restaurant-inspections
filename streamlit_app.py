@@ -217,7 +217,6 @@ elif page == "Appendix B: Maps 📍":
         "Queens-wide visual pattern that clearly explains restaurant inspection risk."
     )
 
-    # --- Restaurant Inspections Map ---
     st.subheader("Restaurant Inspections")
 
     st.image(
@@ -236,7 +235,6 @@ elif page == "Appendix B: Maps 📍":
         "A higher number of inspections does not necessarily mean higher food-safety risk."
     )
 
-    # --- Rodent Failures Map ---
     st.subheader("Rodent Inspection Failures")
 
     st.image(
@@ -256,7 +254,6 @@ elif page == "Appendix B: Maps 📍":
         "activity and inspection patterns."
     )
 
-    # --- 311 Complaints Map ---
     st.subheader("311 Complaints")
 
     st.image(
@@ -275,7 +272,6 @@ elif page == "Appendix B: Maps 📍":
         "of neighborhood risk."
     )
 
-    # --- Combined Map ---
     st.subheader("All Three Measures Together")
 
     st.image(
@@ -296,7 +292,6 @@ elif page == "Appendix B: Maps 📍":
 
     st.write("---")
 
-    # --- What the Maps Tell Us ---
     st.header("What the Maps Tell Us — and What They Don't")
 
     st.write(
@@ -380,7 +375,7 @@ elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
         "**not which variables are most important or what causes what.** "
         "They also describe neighborhood averages, which may not hold for any individual restaurant."
     )
-    
+
 
 # --- Predictive Model Page ---
 # elif page == "5. What Predicts Risk? 🔮":
@@ -388,69 +383,6 @@ elif page == "3. Do Neighborhood Conditions Explain Risk? 📊":
 elif page == "4. What Predicts Risk? 🔮":
     st.title("4. What Predicts Risk? 🔮")
 
-    # st.header("The Key Test")
-    # st.write(
-    #     "The neighborhood analysis gives us an important clue, but it does not tell us whether neighborhood conditions are the strongest signals. "
-    #     "To test that, we built a model using cuisine type, neighborhood, inspection month, median income, rodent failure rate, and 311 complaint volume."
-    # )
-
-    # st.info(
-    #     "Once these variables are considered together, the strongest predictive signals are **cuisine type and inspection month**, not neighborhood conditions."
-    # )
-    # st.info(
-    #     "**Cuisine type is the strongest reported feature group, but this should not be interpreted as meaning that one cuisine is inherently higher risk "
-    #     "than another.** "
-    #     "Instead, cuisine type may be capturing differences in the ingredients, food preparation, and food-handling practices associated "
-    #     "with different types of restaurants."
-    # )
-
-    # st.subheader("Model Performance")
-    # col1, col2, col3 = st.columns([0.5, 1, 1.5])
-    # col1.metric("R²", "0.29")
-    # col2.metric("RMSE", "~15.9 points")
-    # col3.metric("Outcome", "Inspection score")
-
-    # st.write(
-    #     "The model explains about 29% of the variation in inspection scores. That is a modest result: most of the variation in any individual inspection remains unexplained, "
-    #     "which is consistent with the fact that inspection outcomes depend on day-of conditions and other restaurant-level factors that are not present in this dataset."
-    # )
-
-    # st.subheader("What Matters Most for Prediction?")
-    # col1, col2, col3 = st.columns(3)
-    # col1.metric("Cuisine type", "38%", delta="Strongest signal")
-    # col2.metric("Inspection month", "32%", delta="Second strongest")
-    # col3.metric("Neighborhood + conditions", "<25%", delta="Secondary")
-
-    # st.write(
-    #     "Cuisine type is the single strongest reported feature group, accounting for 38% of total importance. "
-    #     "Inspection month is a close second at 32%. Neighborhood identity and the neighborhood-level conditions together are clearly secondary in the model."
-    # )
-
-    # st.write(
-    #     "A more useful interpretation is that cuisine type may serve as a proxy for differences in the "
-    #     "ingredients and food-handling processes that restaurants use. For example, a restaurant that regularly "
-    #     "handles raw meat, poultry, or seafood may face different food-safety challenges than an establishment "
-    #     "that primarily prepares coffee and other lower-risk items."
-    # )
-
-    # st.write(
-    #     "These differences can involve factors such as temperature control, cross-contamination, storage, "
-    #     "preparation, and handling procedures. The current model does not directly measure these factors, so "
-    #     "we cannot determine whether they explain the cuisine-related feature importance."
-    # )
-
-    # st.success(
-    #     "### The main finding\n\n"
-    #     "**What food the restaurant serves, and when it gets inspected, matter more for prediction than what neighborhood it is in.**"
-    # )
-
-    # st.subheader("Why This Changes the Story")
-    # st.write(
-    #     "The earlier correlations could make neighborhood conditions look like the main explanation for restaurant risk. "
-    #     "The model adds an important layer of context: neighborhood conditions still carry signal, but they are not the dominant predictive story after accounting for restaurant characteristics and inspection timing."
-    # )
-
-    # Update these from the notebook's final results table
     GB_R2, GB_RMSE, GB_MAE = 0.046, 14.71, 10.87
     MEAN_RMSE, MEDIAN_MAE = 15.08, 10.16
 
@@ -508,15 +440,11 @@ elif page == "4. What Predicts Risk? 🔮":
         "so neighborhood is a poor guide to any one restaurant."
     )
 
-
-
-
     st.subheader("Interactive Risk Prediction")
     st.write(
         "Choose a cuisine type, neighborhood, and inspection month to see the model's estimated inspection score and grade."
     )
 
-    # Load model resources only on this page.
     model = joblib.load("model/restaurant_score_model.pkl")
     model_columns = joblib.load("model/model_columns.pkl")
     cuisine_list = joblib.load("model/cuisine_list.pkl")
@@ -541,7 +469,9 @@ elif page == "4. What Predicts Risk? 🔮":
         input_row["month_num"] = month
         input_row["median_income"] = stats_row["median_income"]
         input_row["rodent_fail_rate"] = stats_row["rodent_fail_rate"]
-        input_row["complaints_per_1k_per_year"] = stats_row["complaints_per_1k_per_year"]
+        input_row["complaints_per_1k_per_year"] = stats_row[
+            "complaints_per_1k_per_year"
+        ]
 
         cuisine_col = f"cuisine_description_{cuisine}"
         neighborhood_col = f"neighborhood_{neighborhood}"
